@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'spell_quiz.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-import 'package:flutter/foundation.dart';
-
-
 
 class LearnWordsPage extends StatefulWidget {
   final List<Map<String, dynamic>> moduleWords;
@@ -132,80 +127,49 @@ class _LearnWordsPageState extends State<LearnWordsPage> {
   }
 
 
+  Widget buildImageCard(String imageUrl, BuildContext context) {
+    double cardHeight = MediaQuery.of(context).size.height * 2 / 5;
 
-Widget buildImageCard(String imageUrl, BuildContext context) {
-  double cardHeight = MediaQuery.of(context).size.height * 2 / 5;
-
-  return FutureBuilder<File?>(
-    future: _loadImage(imageUrl),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return const Center(
-          child: CircularProgressIndicator(), // Loading indicator
-        );
-      }
-
-      if (snapshot.hasError || snapshot.data == null) {
-        return const Center(
-          child: Text(
-            'Image not available',
-            style: TextStyle(color: Colors.red),
-          ),
-        );
-      }
-
-      return SizedBox(
-        height: cardHeight,
-        width: MediaQuery.of(context).size.width, // Full width
-        child: Card(
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(10), // Match card border radius
-            child: Image.file(
-              snapshot.data!,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
-          ),
+    return SizedBox(
+      height: cardHeight,
+      width: MediaQuery.of(context).size.width, // Full width
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
         ),
-      );
-    },
-  );
-}
-
-Future<File?> _loadImage(String imageUrl) async {
-  if (imageUrl.isEmpty) return null;
-
-  try {
-    // Get local directory
-    final directory = await getApplicationDocumentsDirectory();
-    final fileName = Uri.parse(imageUrl).pathSegments.last; // Extract file name
-    final localImagePath = '${directory.path}/$fileName';
-
-    // Check if the image already exists locally
-    final localImageFile = File(localImagePath);
-    if (await localImageFile.exists()) {
-      return localImageFile; // Return the locally saved file
-    }
-
-    // If not, download and save it locally
-    final request = await HttpClient().getUrl(Uri.parse(imageUrl));
-    final response = await request.close();
-
-    // Read the response as bytes and save it locally
-    final bytes = await consolidateHttpClientResponseBytes(response);
-    await localImageFile.writeAsBytes(bytes);
-
-    return localImageFile;
-  } catch (e) {
-    debugPrint('Error loading image: $e');
-    return null; // Return null if there was an error
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10), // Match card border radius
+          child: imageUrl.isNotEmpty
+              ? Image.network(
+                  imageUrl,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, progress) {
+                    if (progress == null) return child;
+                    return const Center(
+                      child: CircularProgressIndicator(), // Loading indicator
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Center(
+                      child: Text(
+                        'Image not available',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    );
+                  },
+                )
+              : const Center(
+                  child: Text(
+                    'No image URL provided',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
+        ),
+      ),
+    );
   }
-}
-
 
   @override
   void dispose() {
