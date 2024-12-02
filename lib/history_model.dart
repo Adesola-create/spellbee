@@ -7,6 +7,7 @@ class QuizHistory {
   final double percentScore;
   final int length;
   bool sentStatus;
+  int timeSpent; 
 
   QuizHistory({
     required this.date,
@@ -15,6 +16,7 @@ class QuizHistory {
     required this.percentScore,
     required this.length,
     this.sentStatus = false,
+    required this.timeSpent,
   });
 
   // Convert to Map for saving
@@ -26,6 +28,7 @@ class QuizHistory {
       'percentScore': percentScore,
       'length': length,
       'sentStatus': sentStatus,
+      'timeSpent': timeSpent,
     };
   }
 
@@ -38,6 +41,7 @@ class QuizHistory {
       percentScore: map['percentScore'],
       length: map['length'],
       sentStatus: map['sentStatus'],
+      timeSpent: map['timeSpent'],
     );
   }
 

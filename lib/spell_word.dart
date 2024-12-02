@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'learn_words.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'congratulatoryscreen.dart';
 
 class SpellWordPage extends StatefulWidget {
   final String grade;
@@ -132,22 +133,25 @@ Future<List<int>> getPassedModules(String grade) async {
   }
 
   Future<void> _autoNavigateToModule(int newIndex) async {
-    // Wait for modules to load
-    while (isLoading) {
-      await Future.delayed(const Duration(milliseconds: 200));
-    }
-
-    if (newIndex >= 0 && newIndex < modules.length) {
-      navigateToLearnWordsPage(modules[newIndex], newIndex);
-    } else {
-      //navigateToLearnWordsPage(modules[0], 0);
-      // Handle invalid index
-      setState(() {
-        error =
-            'Congratulations!!! You have successfully completed your grade words';
-      });
-    }
+  // Wait for modules to load
+  while (isLoading) {
+    await Future.delayed(const Duration(milliseconds: 200));
   }
+
+  if (newIndex >= 0 && newIndex < modules.length) {
+    // Navigate to the selected module
+    navigateToLearnWordsPage(modules[newIndex], newIndex);
+  } else {
+    // Navigate to the CongratulationsScreen when all modules are completed
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const CongratulationsScreen(),
+      ),
+    );
+  }
+}
+
 
   @override
   @override

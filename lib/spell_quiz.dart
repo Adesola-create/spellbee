@@ -1,58 +1,58 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:spellbee/home_page.dart';
-//import 'package:spellbee/spell_grade.dart';
 import 'spell_word.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'history_model.dart';
 import 'package:intl/intl.dart';
-//import 'dart:convert';
+import 'dart:convert';
 import 'package:http/http.dart' as http;
 //import 'dart:io';
 
 class QuizHistoryManager {
-  static const String _historyKey = 'quiz_history';
-
   // Save quiz history
-  static Future<void> saveQuizHistory(QuizHistory history) async {
+  static Future<void> saveQuizHistory(Map<String, dynamic> history) async {
     final prefs = await SharedPreferences.getInstance();
 
     // Retrieve existing history
-    final historyList = await getQuizHistory();
-
+    List<String> historyList = prefs.getStringList('quizHistory') ?? [];
+    //print('History List: $historyList');
     // Add the new history
-    historyList.add(history);
+    historyList.add(jsonEncode(history));
 
     // Save updated history
-    final encodedList = historyList.map((e) => e.toJson()).toList();
-    prefs.setStringList(_historyKey, encodedList);
+    await prefs.setStringList('quizHistory', historyList);
 
-    // Attempt to send history to the server
+    // Attempt to send pending history
     await sendPendingHistory();
   }
 
   // Retrieve quiz history
-  static Future<List<QuizHistory>> getQuizHistory() async {
+  static Future<List<Map<String, dynamic>>> getQuizHistory() async {
     final prefs = await SharedPreferences.getInstance();
-    final historyData = prefs.getStringList(_historyKey) ?? [];
-   // print('Retrieved history data: $historyData');
-    return historyData.map((e) => QuizHistory.fromJson(e)).toList();
+    List<String> historyData = prefs.getStringList('quizHistory') ?? [];
+    return historyData
+        .map((e) => jsonDecode(e) as Map<String, dynamic>)
+        .toList();
   }
 
   // Send unsent quiz history to the server
   static Future<void> sendPendingHistory() async {
     final prefs = await SharedPreferences.getInstance();
-    final historyList = await getQuizHistory();
+    List<Map<String, dynamic>> historyList = await getQuizHistory();
 
-    for (final history in historyList.where((h) => !h.sentStatus)) {
+    for (var history in historyList.where((h) => h['sent'] == false)) {
       try {
         final response = await http.post(
           Uri.parse('https://spellbee.braveiq.net/v1/history'),
           headers: {'Content-Type': 'application/json'},
-          body: history.toJson(),
+          body: jsonEncode(history),
         );
 
         if (response.statusCode == 200) {
-          history.sentStatus = true; // Mark as sent
+          history['sent'] = true; // Mark as sent
+          List<String> updatedList = historyList.map((e) => jsonEncode(e)).toList();
+          await prefs.setStringList('quizHistory', updatedList);
         }
       } catch (e) {
         // Handle network error silently
@@ -60,8 +60,6 @@ class QuizHistoryManager {
     }
 
     // Save updated history
-    final updatedList = historyList.map((e) => e.toJson()).toList();
-    prefs.setStringList(_historyKey, updatedList);
   }
 }
 
@@ -108,12 +106,33 @@ class _SpellQuizPageState extends State<SpellQuizPage> {
   int score = 0;
   bool hasAnswered = false;
   List<String> currentOptions = [];
+  final Stopwatch stopwatch = Stopwatch(); // Add stopwatch
+  late Timer timer; // Timer to update the UI
+  int elapsedSeconds = 0; // Time spent in seconds
 
   @override
   void initState() {
     super.initState();
     _loadQuestion();
     QuizHistoryManager.sendPendingHistory();
+    stopwatch.start(); // Start the stopwatch when the quiz starts
+    _startTimer(); // Start the timer to update elapsed time
+  }
+
+  @override
+  void dispose() {
+    stopwatch.stop(); // Stop the stopwatch when the page is disposed
+    timer.cancel(); // Cancel the timer
+    super.dispose();
+  }
+
+  /// Start a periodic timer to update the elapsed time
+  void _startTimer() {
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        elapsedSeconds = stopwatch.elapsed.inSeconds; // Update elapsed time
+      });
+    });
   }
 
   /// Load the current question and shuffle options
@@ -153,6 +172,10 @@ class _SpellQuizPageState extends State<SpellQuizPage> {
       final prefs = await SharedPreferences.getInstance();
       final grade = prefs.getString('grade') ?? 'Unknown';
 
+      stopwatch.stop(); // Stop the stopwatch at the end of the quiz
+      timer.cancel(); // Stop the timer
+      int timeSpentInSeconds = stopwatch.elapsed.inSeconds; // Get elapsed time
+
       final quizHistory = QuizHistory(
         date: DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()),
         grade: grade,
@@ -160,26 +183,30 @@ class _SpellQuizPageState extends State<SpellQuizPage> {
         percentScore: (score / widget.moduleWords.length) * 100,
         length: widget.moduleWords.length,
         sentStatus: false, // Initially not sent
+        timeSpent: timeSpentInSeconds, // Save time spent in seconds
       );
 
       // Save passed module index if passed (>= 80%)
-if ((score / widget.moduleWords.length) * 100 >= 80) {
-  final passedModulesKey = 'passedGrade$grade';
-  final existingModules = prefs.getStringList(passedModulesKey) ?? [];
-  
-  // Parse moduleIndex and increment by 1
-  final incrementedModuleIndex = (int.parse(widget.moduleIndex) + 1).toString();
+      if ((score / widget.moduleWords.length) * 100 >= 80) {
+        final passedModulesKey = 'passedGrade$grade';
+        final existingModules = prefs.getStringList(passedModulesKey) ?? [];
 
-  // Check if the module is already saved
-  if (!existingModules.contains(incrementedModuleIndex)) {
-    existingModules.add(incrementedModuleIndex); // Add the incremented module index
-    existingModules.sort((a, b) => int.parse(a).compareTo(int.parse(b))); // Sort for consistency
-    prefs.setStringList(passedModulesKey, existingModules); // Save updated list
-  }
-}
+        // Parse moduleIndex and increment by 1
+        final incrementedModuleIndex =
+            (int.parse(widget.moduleIndex) + 1).toString();
 
+        // Check if the module is already saved
+        if (!existingModules.contains(incrementedModuleIndex)) {
+          existingModules
+              .add(incrementedModuleIndex); // Add the incremented module index
+          existingModules.sort((a, b) =>
+              int.parse(a).compareTo(int.parse(b))); // Sort for consistency
+          prefs.setStringList(
+              passedModulesKey, existingModules); // Save updated list
+        }
+      }
 
-      await QuizHistoryManager.saveQuizHistory(quizHistory);
+      await QuizHistoryManager.saveQuizHistory(quizHistory.toMap());
     }
 
     saveQuizDetails();
@@ -192,9 +219,17 @@ if ((score / widget.moduleWords.length) * 100 >= 80) {
           totalQuestions: widget.moduleWords.length,
           moduleWords: widget.moduleWords, // Pass moduleWords here
           moduleIndex: widget.moduleIndex, // Also pass moduleIndex
+          timeSpent: stopwatch.elapsed.inSeconds,
         ),
       ),
     );
+  }
+
+  /// Format elapsed time into "MM:SS"
+  String _formatElapsedTime(int seconds) {
+    final minutes = seconds ~/ 60;
+    final remainingSeconds = seconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -206,6 +241,17 @@ if ((score / widget.moduleWords.length) * 100 >= 80) {
       appBar: AppBar(
         title: Text('Module ${widget.moduleIndex} Quiz'),
         backgroundColor: Colors.purple,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Center(
+              child: Text(
+                _formatElapsedTime(elapsedSeconds), // Display elapsed time
+                style: const TextStyle(fontSize: 18, color: Colors.white),
+              ),
+            ),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -291,25 +337,25 @@ if ((score / widget.moduleWords.length) * 100 >= 80) {
           ],
         ),
       ),
-      bottomNavigationBar:
-          currentQuestionIndex == widget.moduleWords.length - 1 && hasAnswered
-              ? Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: ElevatedButton(
-                    onPressed: _showResults,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                      backgroundColor: Colors.purple,
-                    ),
-                    child: const Text(
-                      'Submit',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                  ),
-                )
-              : const SizedBox.shrink(),
+      // bottomNavigationBar:
+      //     currentQuestionIndex == widget.moduleWords.length - 1 && hasAnswered
+      //         ? Padding(
+      //             padding: const EdgeInsets.all(16.0),
+      //             child: ElevatedButton(
+      //               onPressed: _showResults,
+      //               style: ElevatedButton.styleFrom(
+      //                 padding: const EdgeInsets.symmetric(vertical: 16),
+      //                 shape: RoundedRectangleBorder(
+      //                     borderRadius: BorderRadius.circular(8)),
+      //                 backgroundColor: Colors.purple,
+      //               ),
+      //               child: const Text(
+      //                 'Submit',
+      //                 style: TextStyle(fontSize: 18, color: Colors.white),
+      //               ),
+      //             ),
+      //           )
+      //         : const SizedBox.shrink(),
     );
   }
 }
@@ -319,6 +365,7 @@ class QuizResultPage extends StatelessWidget {
   final int totalQuestions;
   final List<Map<String, dynamic>> moduleWords;
   final String moduleIndex;
+  final int timeSpent; // Add timeSpent parameter
 
   const QuizResultPage({
     Key? key,
@@ -326,6 +373,7 @@ class QuizResultPage extends StatelessWidget {
     required this.totalQuestions,
     required this.moduleWords, // Ensure this is required
     required this.moduleIndex, // And moduleIndex as well
+    required this.timeSpent, // Pass time spent
   }) : super(key: key);
 
   @override
@@ -360,6 +408,11 @@ class QuizResultPage extends StatelessWidget {
                   fontSize: 52,
                   fontWeight: FontWeight.bold,
                   color: Colors.grey),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Time Spent: ${Duration(seconds: timeSpent).inMinutes} min ${Duration(seconds: timeSpent).inSeconds % 60} sec',
+              style: const TextStyle(fontSize: 18, color: Colors.black),
             ),
             const SizedBox(height: 32),
             Row(

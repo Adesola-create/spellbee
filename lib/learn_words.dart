@@ -80,7 +80,6 @@ class _LearnWordsPageState extends State<LearnWordsPage> {
                 ),
               ],
             ),
-           // const SizedBox(height: 8),
             Text(content, style: const TextStyle(fontSize: 18)),
           ],
         ),
@@ -118,54 +117,66 @@ class _LearnWordsPageState extends State<LearnWordsPage> {
                 ),
               ],
             ),
-          //  const SizedBox(height: 8),
-            Text(content, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            Text(content,
+                style: const TextStyle(
+                    fontSize: 22, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
     );
   }
 
-
   Widget buildImageCard(String imageUrl, BuildContext context) {
     double cardHeight = MediaQuery.of(context).size.height * 2 / 5;
 
-    return SizedBox(
-      height: cardHeight,
-      width: MediaQuery.of(context).size.width, // Full width
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(10), // Match card border radius
-          child: imageUrl.isNotEmpty
-              ? Image.network(
-                  imageUrl,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, progress) {
-                    if (progress == null) return child;
-                    return const Center(
-                      child: CircularProgressIndicator(), // Loading indicator
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Center(
-                      child: Text(
-                        'Image not available',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    );
-                  },
-                )
-              : const Center(
-                  child: Text(
-                    'No image URL provided',
-                    style: TextStyle(color: Colors.grey),
+    return GestureDetector(
+      // Detect swipe gestures
+      onHorizontalDragEnd: (details) {
+        if (details.primaryVelocity! < 0) {
+          // Swipe left to move to the next word
+          _nextWord();
+        } else if (details.primaryVelocity! > 0) {
+          // Swipe right to move to the previous word
+          _previousWord();
+        }
+      },
+      child: SizedBox(
+        height: cardHeight,
+        width: MediaQuery.of(context).size.width, // Full width
+        child: Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10), // Match card border radius
+            child: imageUrl.isNotEmpty
+                ? Image.network(
+                    imageUrl,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, progress) {
+                      if (progress == null) return child;
+                      return const Center(
+                        child: CircularProgressIndicator(), // Loading indicator
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Center(
+                        child: Text(
+                          'Image not available',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      );
+                    },
+                  )
+                : const Center(
+                    child: Text(
+                      'No image URL provided',
+                      style: TextStyle(color: Colors.grey),
+                    ),
                   ),
-                ),
+          ),
         ),
       ),
     );
@@ -179,100 +190,102 @@ class _LearnWordsPageState extends State<LearnWordsPage> {
 
   @override
   Widget build(BuildContext context) {
-  final wordData = widget.moduleWords[currentIndex];
+    final wordData = widget.moduleWords[currentIndex];
 
-  return Scaffold(
-    appBar: AppBar(
-      title: Text('Module ${widget.moduleIndex}'),
-      elevation: 0, // No shadow for seamless design
-    ),
-    body: Stack(
-      children: [
-        // Main Content
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image card directly under the AppBar
-            buildImageCard(
-              wordData['image'] ?? '',
-              context,
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Word Card
-                      buildWordCard(
-                        'WORD',
-                        wordData['word'].toUpperCase(),
-                        Colors.orange,
-                        Colors.orange.shade50,
-                      ),
-                      // Meaning Card
-                      buildInfoCard(
-                        'MEANING',
-                        wordData['meaning'],
-                        Colors.blue,
-                        Colors.blue.shade50,
-                      ),
-                      // Sentence Card
-                      buildInfoCard(
-                        'SAMPLE SENTENCE',
-                        wordData['sentence'],
-                        Colors.green,
-                        Colors.green.shade50,
-                      ),
-                      //const SizedBox(height: 20),
-                    ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Module ${widget.moduleIndex}'),
+        elevation: 0, // No shadow for seamless design
+      ),
+      body: Stack(
+        children: [
+          // Main Content
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Image card directly under the AppBar with swipe gestures
+              buildImageCard(
+                wordData['image'] ?? '',
+                context,
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Word Card
+                        buildWordCard(
+                          'WORD',
+                          wordData['word'].toUpperCase(),
+                          Colors.orange,
+                          Colors.orange.shade50,
+                        ),
+                        // Meaning Card
+                        buildInfoCard(
+                          'MEANING',
+                          wordData['meaning'],
+                          Colors.blue,
+                          Colors.blue.shade50,
+                        ),
+                        // Sentence Card
+                        buildInfoCard(
+                          'SAMPLE SENTENCE',
+                          wordData['sentence'],
+                          Colors.green,
+                          Colors.green.shade50,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Previous Button
+            ElevatedButton(
+              onPressed: currentIndex > 0 ? _previousWord : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.purple, // Purple background color
+                foregroundColor: Colors.white, // White text color
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8), // Rounded corners
+                ),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 24, vertical: 12), // Button padding
+              ),
+              child: const Text('Previous', style: TextStyle(fontSize: 18)),
+            ),
+            // Next Button
+            ElevatedButton(
+              onPressed: _nextWord,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.purple, // Purple background color
+                foregroundColor: Colors.white, // White text color
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8), // Rounded corners
+                ),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 24, vertical: 12), // Button padding
+              ),
+              child: Text(
+                currentIndex < widget.moduleWords.length - 1
+                    ? 'Next'
+                    : 'Quiz',
+                style: TextStyle(fontSize: 18),
               ),
             ),
           ],
         ),
-      ],
-    ),
-    bottomNavigationBar: Padding(
-  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
-  child: Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      // Previous Button
-      ElevatedButton(
-        onPressed: currentIndex > 0 ? _previousWord : null,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.purple, // Purple background color
-          foregroundColor: Colors.white, // White text color
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8), // Rounded corners
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12), // Button padding
-        ),
-        child: const Text('Previous', style: TextStyle(fontSize: 18)),
       ),
-      // Next Button
-      ElevatedButton(
-        onPressed: _nextWord,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.purple, // Purple background color
-          foregroundColor: Colors.white, // White text color
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8), // Rounded corners
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12), // Button padding
-        ),
-        child: Text(
-          currentIndex < widget.moduleWords.length - 1 ? 'Next' : 'Quiz', style: TextStyle(fontSize: 18),
-        ),
-      ),
-    ],
-  ),
-),
-
-  );
-}
-
+    );
+  }
 }
