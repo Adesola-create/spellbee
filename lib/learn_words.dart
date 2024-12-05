@@ -18,6 +18,13 @@ class _LearnWordsPageState extends State<LearnWordsPage> {
   final FlutterTts flutterTts = FlutterTts();
   int currentIndex = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    // Automatically speak the first word when the page loads
+    _speak(widget.moduleWords[currentIndex]['word']);
+  }
+
   Future<void> _speak(String text) async {
     await flutterTts.setLanguage("en-US");
     await flutterTts.setSpeechRate(0.5);
@@ -28,6 +35,8 @@ class _LearnWordsPageState extends State<LearnWordsPage> {
     setState(() {
       if (currentIndex < widget.moduleWords.length - 1) {
         currentIndex++;
+        // Automatically speak the next word
+        _speak(widget.moduleWords[currentIndex]['word']);
       } else {
         Navigator.push(
           context,
@@ -46,6 +55,8 @@ class _LearnWordsPageState extends State<LearnWordsPage> {
     setState(() {
       if (currentIndex > 0) {
         currentIndex--;
+        // Automatically speak the previous word
+        _speak(widget.moduleWords[currentIndex]['word']);
       }
     });
   }

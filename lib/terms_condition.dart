@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-class ChallengePage extends StatelessWidget {
-  const ChallengePage({Key? key}) : super(key: key);
+class TermsConditionPage extends StatelessWidget {
+  const TermsConditionPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Word Puzzle'),
+        title: const Text('Account'),
       ),
       body: Center(
-        child: Text('Puzzle'),
+        child: Text('Account'),
       ),
     );
   }

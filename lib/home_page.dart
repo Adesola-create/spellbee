@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dashboard.dart'; // Import your other pages
 import 'spell_grade.dart';
 import 'history_page.dart';
-import 'word_puzzle.dart';
+import 'overview.dart';
 import 'account_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -20,7 +20,7 @@ class _HomePageState extends State<HomePage> {
     DashboardPage(), // Dashboard page
     SpellGradePage(),   // Exercise page
     HistoryPage(),   // History page
-    WordPuzzleGame(), // Challenge page
+    OverviewPage(), // Challenge page
     AccountPage(),   // Account page
   ];
   
@@ -61,7 +61,7 @@ class _HomePageState extends State<HomePage> {
           ),
           BottomNavigationBarItem(
             icon: _buildIcon(Icons.gamepad, Icons.gamepad_outlined, 3),
-            label: 'Puzzle',
+            label: 'Overview',
           ),
           BottomNavigationBarItem(
             icon: _buildIcon(Icons.settings, Icons.settings_outlined, 4),

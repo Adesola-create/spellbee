@@ -51,7 +51,8 @@ class QuizHistoryManager {
 
         if (response.statusCode == 200) {
           history['sent'] = true; // Mark as sent
-          List<String> updatedList = historyList.map((e) => jsonEncode(e)).toList();
+          List<String> updatedList =
+              historyList.map((e) => jsonEncode(e)).toList();
           await prefs.setStringList('quizHistory', updatedList);
         }
       } catch (e) {
