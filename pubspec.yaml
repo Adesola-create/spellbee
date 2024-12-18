@@ -1,5 +1,5 @@
-name: spellbee
-description: "A new Flutter project."
+name: WordPro
+description: "A vocabulary develepment app for learning and mastering new english words daily."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 1.0.1+2
 
 environment:
   sdk: ^3.5.0
@@ -30,19 +30,29 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  firebase_core: ^2.15.0  
+  firebase_auth: ^4.6.0
+  cloud_firestore: ^4.9.0
+  google_sign_in: ^6.0.0
   shared_preferences: ^2.3.2
   http: ^1.2.2
   intl: ^0.19.0
   flutter_tts: ^3.3.1
   intl_phone_field: ^3.2.0  # Replace with the latest version
-  connectivity_plus: ^2.0.2
+  connectivity_plus: ^6.1.1
   percent_indicator: ^4.2.2
   image_picker: ^0.8.8+1
+  device_info_plus: 11.1.1
+  path_provider: ^2.1.5
+  dio: ^5.7.0
+ 
+ 
 
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  in_app_purchase: ^3.2.0
 
 dev_dependencies:
   flutter_test:

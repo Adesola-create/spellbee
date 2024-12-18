@@ -10,8 +10,7 @@ class SpellWordPage extends StatefulWidget {
   final String grade;
   final int? newindex; // Optional parameter
 
-  const SpellWordPage({Key? key, required this.grade, this.newindex})
-      : super(key: key);
+  const SpellWordPage({super.key, required this.grade, this.newindex});
 
   @override
   _SpellWordPageState createState() => _SpellWordPageState();
@@ -36,24 +35,22 @@ class _SpellWordPageState extends State<SpellWordPage> {
     }
   }
 
-Future<List<int>> getPassedModules(String grade) async {
-  final prefs = await SharedPreferences.getInstance();
-  final passedModulesKey = 'passedGrade$grade';
-  final existingModules = prefs.getStringList(passedModulesKey) ?? [];
+  Future<List<int>> getPassedModules(String grade) async {
+    final prefs = await SharedPreferences.getInstance();
+    final passedModulesKey = 'passedGrade$grade';
+    final existingModules = prefs.getStringList(passedModulesKey) ?? [];
 
-  // Ensure the first module is always unlocked
-  final unlockedModules = existingModules.map((e) => int.parse(e)).toSet();
-  unlockedModules.add(1); // Add the first module (module index 1) to the set
+    // Ensure the first module is always unlocked
+    final unlockedModules = existingModules.map((e) => int.parse(e)).toSet();
+    unlockedModules.add(1); // Add the first module (module index 1) to the set
 
-  return unlockedModules.toList();
-}
-
-
+    return unlockedModules.toList();
+  }
 
   Future<void> loadStoredWords() async {
     final prefs = await SharedPreferences.getInstance();
     final storedWords = prefs.getString('words${widget.grade}');
-    //save grade
+    // Save grade
     prefs.setString('grade', widget.grade);
 
     if (storedWords != null) {
@@ -133,104 +130,110 @@ Future<List<int>> getPassedModules(String grade) async {
   }
 
   Future<void> _autoNavigateToModule(int newIndex) async {
-  // Wait for modules to load
-  while (isLoading) {
-    await Future.delayed(const Duration(milliseconds: 200));
+    // Wait for modules to load
+    while (isLoading) {
+      await Future.delayed(const Duration(milliseconds: 200));
+    }
+
+    if (newIndex >= 0 && newIndex < modules.length) {
+      // Navigate to the selected module
+      navigateToLearnWordsPage(modules[newIndex], newIndex);
+    } else {
+      // Navigate to the CongratulationsScreen when all modules are completed
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const CongratulationsScreen(),
+        ),
+      );
+    }
   }
 
-  if (newIndex >= 0 && newIndex < modules.length) {
-    // Navigate to the selected module
-    navigateToLearnWordsPage(modules[newIndex], newIndex);
-  } else {
-    // Navigate to the CongratulationsScreen when all modules are completed
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const CongratulationsScreen(),
-      ),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Grade ${widget.grade} Spelling Words')),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : error.isNotEmpty
+              ? Center(
+                  child: Text(
+                  error,
+                  style: const TextStyle(
+                      fontSize: 26, fontWeight: FontWeight.bold),
+                ))
+              : FutureBuilder<List<int>>(
+                  future: getPassedModules(widget.grade),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return const Center(
+                        child: Text(
+                          'Error loading modules',
+                          style:
+                              TextStyle(fontSize: 18, color: Colors.redAccent),
+                        ),
+                      );
+                    } else {
+                      final unlockedModules = snapshot.data ?? [];
+
+                      return ListView.builder(
+                         padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 16),
+                        itemCount: modules.length,
+                        itemBuilder: (context, moduleIndex) {
+                          final isUnlocked =
+                              unlockedModules.contains(moduleIndex + 1);
+
+                          return Card(
+                            margin: const EdgeInsets.symmetric(vertical: 4.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                              side: BorderSide(
+                                color: Colors.grey, // Border color
+                                width: 2.0, // Border width
+                              ),
+                            ),
+                            child: ListTile(
+                              title: Text('Module ${moduleIndex + 1}'),
+                              trailing: Icon(
+                                isUnlocked
+                                    ? Icons.lock_open // Unlocked
+                                    : Icons.lock, // Locked
+                                color: isUnlocked ? Colors.green : Colors.red,
+                              ),
+                              onTap: () {
+                                if (isUnlocked) {
+                                  // Navigate to LearnWordsPage for unlocked module
+                                  navigateToLearnWordsPage(
+                                      modules[moduleIndex], moduleIndex);
+                                } else {
+                                  // Show dialog for locked module
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text('Locked Module'),
+                                      content: const Text(
+                                          'This module is not yet unlocked.'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(),
+                                          child: const Text('OK'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                          );
+                        },
+                      );
+                    }
+                  },
+                ),
     );
   }
-}
-
-
-  @override
-  @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(title: Text('Grade ${widget.grade} Spelling Words')),
-    body: isLoading
-        ? const Center(child: CircularProgressIndicator())
-        : error.isNotEmpty
-            ? Center(
-                child: Text(
-                error,
-                style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-              ))
-            : FutureBuilder<List<int>>(
-                future: getPassedModules(widget.grade),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text(
-                        'Error loading modules',
-                        style: TextStyle(
-                            fontSize: 18, color: Colors.redAccent),
-                      ),
-                    );
-                  } else {
-                    final unlockedModules = snapshot.data ?? [];
-
-                    return ListView.builder(
-                      padding: const EdgeInsets.all(8.0),
-                      itemCount: modules.length,
-                      itemBuilder: (context, moduleIndex) {
-                        final isUnlocked =
-                            unlockedModules.contains(moduleIndex + 1);
-
-                        return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: ListTile(
-                            title: Text('Module ${moduleIndex + 1}'),
-                            trailing: Icon(
-                              isUnlocked
-                                  ? Icons.lock_open // Unlocked
-                                  : Icons.lock, // Locked
-                              color: isUnlocked ? Colors.green : Colors.red,
-                            ),
-                            onTap: () {
-                              if (isUnlocked) {
-                                // Navigate to LearnWordsPage for unlocked module
-                                navigateToLearnWordsPage(
-                                    modules[moduleIndex], moduleIndex);
-                              } else {
-                                // Show dialog for locked module
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: const Text('Locked Module'),
-                                    content: const Text(
-                                        'This module is not yet unlocked.'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () =>
-                                            Navigator.of(context).pop(),
-                                        child: const Text('OK'),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }
-                            },
-                          ),
-                        );
-                      },
-                    );
-                  }
-                },
-              ),
-  );
-}
-
 }

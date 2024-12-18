@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "spellbee" "\0"
+            VALUE "FileDescription", "wordpro" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "spellbee" "\0"
+            VALUE "InternalName", "wordpro" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2024 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "spellbee.exe" "\0"
-            VALUE "ProductName", "spellbee" "\0"
+            VALUE "OriginalFilename", "wordpro.exe" "\0"
+            VALUE "ProductName", "wordpro" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

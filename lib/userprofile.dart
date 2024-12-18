@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -9,7 +9,7 @@ class ProfilePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Account'),
       ),
-      body: Center(
+      body: const Center(
         child: Text('Account'),
       ),
     );

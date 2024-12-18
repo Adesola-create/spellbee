@@ -5,14 +5,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 //import 'billing_page.dart';
 import 'login_page.dart';
 import 'faq_page.dart';
-import 'userprofile.dart';
+//import 'userprofile.dart';
 import 'delete_account.dart';
 import 'about_page.dart';
 import 'terms_condition.dart';
 import 'help.dart';
+import 'privacypolicy.dart';
 
 class AccountPage extends StatefulWidget {
-  const AccountPage({Key? key}) : super(key: key);
+  const AccountPage({super.key});
 
   @override
   _AccountPageState createState() => _AccountPageState();
@@ -21,24 +22,43 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   String userName = '';
   String userEmail = '';
+  String userPhone = '';
   String userId = '';
-  String profileImageUrl = ''; // Placeholder image//https://via.placeholder.com/150
+  String profileImageUrl =
+      ''; // Placeholder image//https://via.placeholder.com/150
 
   @override
   void initState() {
     super.initState();
+    _checkLoginStatus();
     _loadUserData();
     _loadProfileImage(); // Load profile image from local storage
   }
 
-   Future<void> _onRefresh() async {
+  Future<void> _checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userEmail = prefs.getString('userEmail');
+
+    if (userEmail != null && userEmail.isNotEmpty) {
+      // If a user is logged in, navigate to the dashboard
+    } else {
+      // Otherwise, navigate to the welcome screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    }
+  }
+
+  Future<void> _onRefresh() async {
     // Simulate a delay for fetching or reloading data
     //await Future.delayed(Duration(seconds: 2));
     // You can add your logic here to refresh the data or re-fetch it.
     setState(() {
       // For example, we can change some data to simulate refreshing.
-    _loadUserData();
-    _loadProfileImage(); // Load profile image from local storage
+      // _checkLoginStatus();
+      _loadUserData();
+      _loadProfileImage(); // Load profile image from local storage
     });
   }
 
@@ -47,6 +67,7 @@ class _AccountPageState extends State<AccountPage> {
     setState(() {
       userName = prefs.getString('userName') ?? 'Unknown User';
       userEmail = prefs.getString('userEmail') ?? 'Unknown Email';
+      userPhone = prefs.getString('userPhone') ?? 'Unknown';
       userId = prefs.getString('userId') ?? 'Unknown ID';
     });
   }
@@ -54,7 +75,8 @@ class _AccountPageState extends State<AccountPage> {
   Future<void> _loadProfileImage() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      profileImageUrl = prefs.getString('profile_photo') ?? 'assets/images/user.png'; // Default placeholder
+      profileImageUrl = prefs.getString('profile_photo') ??
+          'assets/images/profilepic.jpg'; // Default placeholder
     });
   }
 
@@ -90,7 +112,8 @@ class _AccountPageState extends State<AccountPage> {
         const end = Offset.zero; // Slide to the center
         const curve = Curves.easeInOut;
 
-        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
         var offsetAnimation = animation.drive(tween);
 
         return SlideTransition(
@@ -105,85 +128,86 @@ class _AccountPageState extends State<AccountPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Account', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        title: const Text('Account',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
         automaticallyImplyLeading: false,
       ),
       body: RefreshIndicator(
         onRefresh: _onRefresh, // This is the callback for pull-to-refresh
         child: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-        children: [
-          _buildGroupedSection([
-            _buildProfileSection(),
-          ]),
-          const SizedBox(height: 24.0),
-          _buildGroupedSection([
-            _buildListTile('Account Profile', Icons.person, onTap: () {
-              Navigator.of(context).push(_createRoute(ProfilePage()));
-            }),
-            
-          ]),
-          
-          
-          // const SizedBox(height: 24.0),
-          // _buildGroupedSection([
-          //   _buildListTile('Dark/Light Mode', Icons.brightness_6, trailingText: 'Light', onTap: () {
-          //     // Navigate to Dark/Light Mode settings
-          //   }),
-          // ]),
-          // const SizedBox(height: 24.0),
-          // _buildGroupedSection([
-          //   _buildListTile('Linked User Accounts', Icons.account_box_outlined, onTap: () {
-          //     // Navigate to Help & Support page
-          //   }),
-          //   _buildListTile('Switch User Account', Icons.switch_account, onTap: () {
-          //     // Navigate to Legal Information page
-          //   }),
-          //   _buildListTile('Login & Security', Icons.security, onTap: () {
-          //     // Navigate to Legal Information page
-          //   }),
-          // ]),
-          const SizedBox(height: 24.0),
-          _buildGroupedSection([
-            _buildListTile('FAQs', Icons.help, onTap: () {
-              Navigator.of(context).push(_createRoute(FAQPage()));
-            }),
-            _buildListTile('Help & Support', Icons.help, onTap: () {
-              //Navigator.of(context).push(_createRoute(HelpSupportPage()));
-              Navigator.of(context).push(_createRoute(HelpPage()));
-            }),
-            _buildListTile('Terms & Condittions', Icons.info, onTap: () {
-              Navigator.of(context).push(_createRoute(TermsConditionPage()));
-            }),
-            _buildListTile('Delete your Account', Icons.help, onTap: () {
-              Navigator.of(context).push(_createRoute(DeleteAccountPage()));
-            }),
-            _buildListTile('About SpellBee', Icons.info_outline, onTap: () {
-               Navigator.of(context).push(_createRoute(AboutPage()));
-            }),
-          ]),
-          const SizedBox(height: 24.0),
-          Center(
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).push(_createRoute(LoginScreen()));
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14.0),
+          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+          children: [
+            _buildGroupedSection([
+              _buildProfileSection(),
+            ]),
+            const SizedBox(height: 24.0),
+            _buildGroupedSection([
+              _buildUserInfo('Name', userName, Icons.person, onTap: () {
+                // Navigator.of(context).push(_createRoute(ProfilePage()));
+              }),
+              _buildUserInfo('Email', userEmail, Icons.email, onTap: () {
+                // Navigator.of(context).push(_createRoute(ProfilePage()));
+              }),
+              _buildUserInfo('Phone Number', userPhone, Icons.phone, onTap: () {
+                // Navigator.of(context).push(_createRoute(ProfilePage()));
+              }),
+              // _buildUserInfo('City', '', Icons.location_city, onTap: () {
+              //  // Navigator.of(context).push(_createRoute(ProfilePage()));
+              // }),
+            ]),
+
+            const SizedBox(height: 24.0),
+            _buildGroupedSection([
+              _buildListTile('FAQs', Icons.help, onTap: () {
+                Navigator.of(context).push(_createRoute(FAQPage()));
+              }),
+              _buildListTile('Help & Support', Icons.help, onTap: () {
+                //Navigator.of(context).push(_createRoute(HelpSupportPage()));
+                Navigator.of(context).push(_createRoute(HelpAndSupportPage()));
+              }),
+              _buildListTile('Terms & Conditions', Icons.info, onTap: () {
+                Navigator.of(context)
+                    .push(_createRoute(const TermsAndConditionsPage()));
+              }),
+              _buildListTile('Privacy Policy', Icons.info, onTap: () {
+                Navigator.of(context).push(_createRoute(const PrivacyPolicyPage()));
+              }),
+              _buildListTile('Delete your Account', Icons.help, onTap: () {
+                Navigator.of(context).push(_createRoute(const AccountDeletionPage()));
+              }),
+              _buildListTile('About WordPro', Icons.info_outline, onTap: () {
+                Navigator.of(context).push(_createRoute(const AboutPage()));
+              }),
+            ]),
+            const SizedBox(height: 24.0),
+            Center(
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    //remove userEmail from pref
+                    SharedPreferences.getInstance().then((prefs) {
+                      prefs.remove('userEmail');
+                    });
+                    _checkLoginStatus();
+                   // Navigator.of(context).push(_createRoute(LoginScreen()));
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14.0),
+                  ),
+                  child: const Text('Log Out',
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
-                child: const Text('Log Out', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               ),
             ),
-          ),
-          const SizedBox(height: 16.0),
-          const Center(child: Text('Version 1.0.1 (0167)')),
-        ],
-      ),
-     ),// bottomNavigationBar: const BottomNavBar(currentIndex: 4),
+            const SizedBox(height: 16.0),
+            const Center(child: Text('Version 1.0.1 (0167)')),
+          ],
+        ),
+      ), // bottomNavigationBar: const BottomNavBar(currentIndex: 4),
     );
   }
 
@@ -191,21 +215,52 @@ class _AccountPageState extends State<AccountPage> {
     return Row(
       children: [
         const SizedBox(width: 16.0),
-        GestureDetector(
-         // onTap: () => _showImagePickerDialog(),
-          child: CircleAvatar(
-            radius: 36.0,
-            backgroundImage: FileImage(File(profileImageUrl)), // Load image from local storage
-          ),
+        Stack(
+          children: [
+            // Profile Image Display
+            CircleAvatar(
+              radius: 36.0,
+              backgroundImage: profileImageUrl.isNotEmpty
+                  ? FileImage(File(profileImageUrl))
+                  : const AssetImage('assets/images/profilepic.jpg')
+                      as ImageProvider,
+              onBackgroundImageError: (_, __) {
+                // Handle fallback if the image is invalid
+              },
+            ),
+            // Floating Camera Icon
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: GestureDetector(
+                onTap: _showImagePickerDialog, // Show the image picker dialog
+                child: Container(
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.transparent,
+                  ),
+                  padding: const EdgeInsets.all(6.0),
+                  child: const Icon(
+                    Icons
+                        .add_a_photo, // Ensure you use a valid icon name from `Icons`
+                    color: Colors.grey, // Icon color
+                    size: 30.0, // Icon size
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
         const SizedBox(width: 16.0),
+        // User Info Section
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 12.0),
             Text(
               userName,
-              style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+              style:
+                  const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 3.0),
             Text(
@@ -215,7 +270,7 @@ class _AccountPageState extends State<AccountPage> {
             const SizedBox(height: 3.0),
             Text(
               'BraveIQ ID: 000$userId',
-              style: TextStyle(fontSize: 14.0, color: Colors.black),
+              style: const TextStyle(fontSize: 14.0, color: Colors.black),
             ),
             const SizedBox(height: 12.0),
           ],
@@ -250,6 +305,21 @@ class _AccountPageState extends State<AccountPage> {
       title: Text(title),
       trailing: trailingText.isNotEmpty
           ? Text(trailingText)
+          : const Icon(Icons.chevron_right),
+      onTap: onTap,
+    );
+  }
+
+  Widget _buildUserInfo(String title, String value, IconData icon,
+      {VoidCallback? onTap}) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(title),
+      trailing: value.isNotEmpty
+          ? Text(
+              value,
+              style: const TextStyle(fontSize: 16),
+            )
           : const Icon(Icons.chevron_right),
       onTap: onTap,
     );

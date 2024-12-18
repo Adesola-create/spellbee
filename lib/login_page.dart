@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert'; // For jsonDecode
 
-import 'dashboard.dart';
+//import 'home_page.dart';
 import 'constants.dart';
 import 'signup_page.dart';
+import 'forgot_password.dart';
+
+import 'dart:async';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -21,6 +25,40 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   bool _isPasswordVisible = false; // State for password visibility
 
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
+
+  Future<void> saveGoals(List<dynamic>? goalsData) async {
+    // Check if goalsData is null or empty
+    if (goalsData == null || goalsData.isEmpty) {
+      return; // Exit the function if goalsData is null or empty
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+
+    // Convert the data['user']['goals'] to List<String> if it's not already
+    List<String> goals = goalsData.map((e) => e.toString()).toList();
+
+    // Save the List<String> to SharedPreferences
+    await prefs.setStringList('selectedGoalsAreas', goals);
+  }
+
+  Future<void> _checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userEmail = prefs.getString('userEmail');
+
+    if (userEmail != null && userEmail.isNotEmpty) {
+      // If a user is logged in, navigate to the dashboard
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
+    }
+  }
+
   Future<void> _login(BuildContext context) async {
     if (_formKey.currentState?.validate() != true) {
       return;
@@ -33,36 +71,82 @@ class _LoginScreenState extends State<LoginScreen> {
     final email = _emailController.text;
     final password = _passwordController.text;
 
-    final url = Uri.parse('https://api.braveiq.net/v1/login');
-    
-    try {
-      final response = await http
-          .get(
-            url.replace(queryParameters: {'email': email, 'password': password}),
-            headers: {'Authorization': 'Bearer 123456789Token'},
-          )
-          .timeout(const Duration(seconds: 15)); // Adding a timeout
+    final Uri url = Uri.parse('https://api.braveiq.net/v1/login');
 
+    try {
+      final response = await http.post(
+        url,
+        body: {
+          'email': email,
+          'password': password,
+        },
+        headers: {
+          'Authorization': 'Bearer 123456789Token',
+        },
+      ).timeout(const Duration(seconds: 60));
+
+      print(response.body);
+      final data = jsonDecode(response.body);
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
         if (data['status'] == 'success') {
           final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('userData', response.body);
           await prefs.setString('userId', data['user']['id']);
-          await prefs.setString('userName', data['user']['name']);
+          await prefs.setString('userName',
+              '${data['user']['firstname']} ${data['user']['lastname']}');
+          await prefs.setString('full_name',
+              '${data['user']['firstname']} ${data['user']['lastname']}');
           await prefs.setString('userEmail', data['user']['email']);
+          await prefs.setString('userPhone', data['user']['phone']);
+         
 
+          // If quizHistory is empty, fetch data from API
+          //if (history.isEmpty) {
+          List<String> history = prefs.getStringList('quizHistory') ?? [];
+          Completer completer = Completer();
+          try {
+            final response = await http.get(
+              Uri.parse(
+                  'https://api.braveiq.net/v1/gethistory?userid=${data['user']['id']}'),
+              headers: {
+                'Authorization':
+                    'Bearer 123456789Token', // Replace with your token
+              },
+            );
+
+            if (response.statusCode == 200) {
+              List<dynamic> fetchedHistory = jsonDecode(response.body);
+
+              // Save fetched history to quizHistory and SharedPreferences
+              history =
+                  fetchedHistory.map((entry) => jsonEncode(entry)).toList();
+              await prefs.setStringList('quizHistory', history);
+
+              completer.complete();
+            } else {
+              // Handle errors here
+              completer.completeError('Failed to fetch data');
+            }
+          } catch (e) {
+            completer.completeError(e.toString());
+          }
+
+          await completer.future;
+
+          //end of fetching
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const DashboardPage()),
+            MaterialPageRoute(builder: (context) => const HomePage()),
           );
         } else {
           _showErrorDialog(context, data['message']);
         }
       } else {
-        _showErrorDialog(context, 'An error occurred. Please try again.');
+        _showErrorDialog(
+            context, 'An error occurred. Please try again. ${data['message']}');
       }
     } catch (e) {
-      _showErrorDialog(context, 'Request timeout. Please check your connection and try again.');
+      _showErrorDialog(context, 'Please check your connection and try again.');
     } finally {
       setState(() {
         _isLoading = false;
@@ -113,7 +197,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 const Text(
                   'Login to start your session',
                   style: TextStyle(
-                    fontSize: 18, color: Colors.grey,
+                    fontSize: 18,
+                    color: Colors.grey,
                   ),
                 ),
                 const SizedBox(height: 50),
@@ -128,7 +213,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: primaryColor, width: 2.0),
                     ),
-                
                   ),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
@@ -164,7 +248,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                     ),
                   ),
-                  obscureText: !_isPasswordVisible, // Toggle password visibility
+                  obscureText:
+                      !_isPasswordVisible, // Toggle password visibility
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your password';
@@ -172,7 +257,20 @@ class _LoginScreenState extends State<LoginScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 6),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ForgotPassword()),
+                    );
+                  },
+                  child: const Text(
+                    "Forgot Password?",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+                const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -181,7 +279,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       backgroundColor: primaryColor,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(18),
                       ),
                     ),
                     child: _isLoading

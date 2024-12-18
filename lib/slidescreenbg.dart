@@ -4,6 +4,8 @@ import 'welcome_screen.dart';
 //import 'constants.dart';
 
 class SlideScreen extends StatefulWidget {
+  const SlideScreen({super.key});
+
   @override
   _SlideScreenState createState() => _SlideScreenState();
 }
@@ -51,7 +53,7 @@ class _SlideScreenState extends State<SlideScreen> {
   void _goToNextSlide() {
     if (_currentIndex < slides.length - 1) {
       _pageController.nextPage(
-          duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+          duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
     } else {
       _navigateToSignUp();
     }
@@ -60,12 +62,12 @@ class _SlideScreenState extends State<SlideScreen> {
   void _goToPreviousSlide() {
     if (_currentIndex > 0) {
       _pageController.previousPage(
-          duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+          duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
     }
   }
 
   void _navigateToSignUp() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => WelcomeScreen()));
+    Navigator.push(context, MaterialPageRoute(builder: (context) => const WelcomeScreen()));
   }
 
   @override
@@ -93,7 +95,7 @@ class _SlideScreenState extends State<SlideScreen> {
                     right: 20,
                     child: GestureDetector(
                       onTap: _navigateToSignUp,
-                      child: Text(
+                      child: const Text(
                         "Skip",
                         style: TextStyle(
                           color: Colors.white,
@@ -108,10 +110,10 @@ class _SlideScreenState extends State<SlideScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           slides[index]['title']!,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 52,
                             fontWeight: FontWeight.bold,
@@ -119,10 +121,10 @@ class _SlideScreenState extends State<SlideScreen> {
                           ),
                           textAlign: TextAlign.start,
                         ),
-                        SizedBox(height: 22),
+                        const SizedBox(height: 22),
                         Text(
                           slides[index]['subtitle']!,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 32,
                             height: 1.1,
@@ -149,7 +151,7 @@ class _SlideScreenState extends State<SlideScreen> {
                             backgroundColor: Colors.black54,
                             foregroundColor: Colors.white,
                           ),
-                          child: Text(
+                          child: const Text(
                             "Get Started",
                             style: TextStyle(fontSize: 18),
                           ),
@@ -175,8 +177,8 @@ class _SlideScreenState extends State<SlideScreen> {
                         shape: BoxShape.circle,
                         color: Colors.black.withOpacity(0.3),
                       ),
-                      padding: EdgeInsets.all(8),
-                      child: Icon(
+                      padding: const EdgeInsets.all(8),
+                      child: const Icon(
                         Icons.chevron_left,
                         color: Colors.white,
                       ),
@@ -190,7 +192,7 @@ class _SlideScreenState extends State<SlideScreen> {
                         _pageController.jumpToPage(index);
                       },
                       child: Container(
-                        margin: EdgeInsets.symmetric(horizontal: 4),
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
                         width: 10,
                         height: 10,
                         decoration: BoxDecoration(
@@ -211,8 +213,8 @@ class _SlideScreenState extends State<SlideScreen> {
                         shape: BoxShape.circle,
                         color: Colors.black.withOpacity(0.2),
                       ),
-                      padding: EdgeInsets.all(8),
-                      child: Icon(
+                      padding: const EdgeInsets.all(8),
+                      child: const Icon(
                         Icons.chevron_right,
                         color: Colors.white,
                       ),

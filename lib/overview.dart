@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 class OverviewPage extends StatefulWidget {
-  const OverviewPage({Key? key}) : super(key: key);
+  const OverviewPage({super.key});
 
   @override
   _OverviewPageState createState() => _OverviewPageState();
@@ -28,7 +28,7 @@ class _OverviewPageState extends State<OverviewPage> {
 
   Future<Map<String, dynamic>> computeStatistics() async {
     final prefs = await SharedPreferences.getInstance();
-    final historyData = prefs.getStringList('quizHistory') ?? [];
+    final historyData = prefs.getStringList('quizHistoryLog') ?? [];
     final List<Map<String, dynamic>> quizHistory =
         historyData.map((e) => jsonDecode(e) as Map<String, dynamic>).toList();
 
@@ -51,7 +51,9 @@ class _OverviewPageState extends State<OverviewPage> {
       if (x < 0 || x > 30) {
         throw ArgumentError("x must be between 0 and 30.");
       }
-      return (30 - x) / 30 * 100;
+      double y = (30 - x) / 30 * 100;
+
+      return y;
     }
 
     double calculateSpeedPercentage(int x) {
@@ -62,7 +64,9 @@ class _OverviewPageState extends State<OverviewPage> {
       if (y >= 100) {
         y = 90;
       }
-      return (100 - y) / 100;
+      double z = (100 - y) / 100;
+      // print('Yes $z');
+      return z;
     }
 
     double calculateGradePercentage(int x) {
@@ -203,15 +207,16 @@ class _OverviewPageState extends State<OverviewPage> {
 
   @override
   Widget build(BuildContext context) {
-    double number = statistics['gradePercentage'] * 100;
-    double roundedNumber = double.parse(number.toStringAsFixed(1));
+   // print('yes ${statistics['speedPercentage']}');
+   // double number = statistics['gradePercentage'] * 100;
+   // double roundedNumber = 0.0;//double.parse(number.toStringAsFixed(1));
     return Scaffold(
-      backgroundColor: const Color(0xFF121212), // Dark background
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255), // Dark background
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -219,7 +224,7 @@ class _OverviewPageState extends State<OverviewPage> {
         title: const Text(
           'Learning Insight',
           style: TextStyle(
-              color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+              color: Colors.black, fontSize: 22, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
@@ -234,12 +239,12 @@ class _OverviewPageState extends State<OverviewPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 24),
                     // Overall Score Display
                     Center(
                       child: CircularPercentIndicator(
-                        radius: 100.0,
-                        lineWidth: 16.0,
+                        radius: 108.0,
+                        lineWidth: 18.0,
                         percent: (statistics['averageScore'] ?? 0) / 100,
                         center: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -247,9 +252,9 @@ class _OverviewPageState extends State<OverviewPage> {
                             Text(
                               "${statistics['averageScore']?.toStringAsFixed(1) ?? "0"}%",
                               style: const TextStyle(
-                                fontSize: 32,
+                                fontSize: 36,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: Colors.black,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -262,13 +267,13 @@ class _OverviewPageState extends State<OverviewPage> {
                             ),
                           ],
                         ),
-                        progressColor: Colors.blueAccent,
-                        backgroundColor: Colors.grey[800]!,
+                        progressColor: Colors.purple,
+                        backgroundColor: Colors.grey[400]!,
                         circularStrokeCap: CircularStrokeCap.round,
                       ),
                     ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 34),
                     // Statistics Cards
                     SizedBox(
                       height: 100,
@@ -343,10 +348,10 @@ class _OverviewPageState extends State<OverviewPage> {
                       description:
                           "You have completed ${statistics['uniqueGradeWords']} grade words out of 1,000 total words",
                       percentage: statistics['gradePercentage'],
-                      percentageText: "${roundedNumber.toInt()}%",
+                      percentageText: "${statistics['gradePercentage'].toStringAsFixed(1)}%",
                       progressColor: Colors.blue,
                     ),
-                    SizedBox(height: 22),
+                    const SizedBox(height: 22),
                   ],
                 ),
               ),
@@ -361,17 +366,18 @@ class StatisticsCard extends StatelessWidget {
   final String value;
 
   const StatisticsCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.value,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color(0xFF1E1E1E),
+      color: Colors.grey[200],
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16.0),
+        side: const BorderSide(color: Colors.grey, width: 1.0),
       ),
       margin: const EdgeInsets.only(right: 12.0),
       child: Padding(
@@ -382,7 +388,7 @@ class StatisticsCard extends StatelessWidget {
             Text(
               title,
               style: const TextStyle(
-                color: Colors.grey,
+                color: Colors.black,
                 fontSize: 14,
               ),
             ),
@@ -390,7 +396,7 @@ class StatisticsCard extends StatelessWidget {
             Text(
               value,
               style: const TextStyle(
-                color: Colors.white,
+                color: Colors.black,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -411,20 +417,21 @@ class FeedbackCard extends StatelessWidget {
   final Color progressColor;
 
   const FeedbackCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.description,
     required this.percentage,
     required this.percentageText,
     required this.progressColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color(0xFF1E1E1E), // Card background
+      color:  Colors.grey[200], // Card background
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16.0),
+        side: const BorderSide(color: Colors.grey, width: 1.0),
       ),
       margin: const EdgeInsets.only(bottom: 16.0),
       child: Padding(
@@ -439,13 +446,13 @@ class FeedbackCard extends StatelessWidget {
               center: Text(
                 percentageText,
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
               ),
               progressColor: progressColor,
-              backgroundColor: Colors.grey[800]!,
+              backgroundColor: Colors.grey[500]!,
               circularStrokeCap: CircularStrokeCap.round,
             ),
             const SizedBox(width: 12.0),
@@ -458,16 +465,16 @@ class FeedbackCard extends StatelessWidget {
                   Text(
                     title,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: Colors.black,
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 18,
                     ),
                   ),
                   const SizedBox(height: 8.0),
                   Text(
                     description,
-                    style: const TextStyle(
-                      color: Colors.grey,
+                    style: TextStyle(
+                      color: Colors.black.withOpacity(0.6),
                       fontSize: 14,
                     ),
                   ),

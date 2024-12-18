@@ -9,7 +9,7 @@ class ForgotPassword extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Forgot Password'),
       ),
-      body: Center(
+      body: const Center(
         child: Text('Forgot Password Page'), // Replace with your UI
       ),
     );

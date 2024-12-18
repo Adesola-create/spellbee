@@ -1,4 +1,4 @@
-package com.example.spellbee
+package com.livepetal.wordpro
 
 import io.flutter.embedding.android.FlutterActivity
 

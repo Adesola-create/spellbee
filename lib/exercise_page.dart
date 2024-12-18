@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ExcercisePage extends StatelessWidget {
-  const ExcercisePage({Key? key}) : super(key: key);
+  const ExcercisePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -9,7 +9,7 @@ class ExcercisePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Excercise'),
       ),
-      body: Center(
+      body: const Center(
         child: Text('Test Your Spelling Ability!'),
       ),
     );

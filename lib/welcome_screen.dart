@@ -20,7 +20,7 @@ class WelcomeScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 200), // Add this to move the text downward
               const Text(
-                'SpellBee',
+                'WordPro',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 46,
@@ -44,7 +44,7 @@ class WelcomeScreen extends StatelessWidget {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.pushReplacementNamed(context, '/home'); // Updated for named route
+                      Navigator.pushReplacementNamed(context, '/login'); // Updated for named route
                     },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -66,7 +66,7 @@ class WelcomeScreen extends StatelessWidget {
                   const SizedBox(height: 20), // Space between the buttons
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.pushReplacementNamed(context, '/home'); // Ensure this route exists
+                      Navigator.pushReplacementNamed(context, '/signup'); // Ensure this route exists
                     },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),

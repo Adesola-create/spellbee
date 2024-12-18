@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:spellbee/home_page.dart';
+import 'home_page.dart';
 import 'spell_word.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'history_model.dart';
@@ -15,13 +15,13 @@ class QuizHistoryManager {
     final prefs = await SharedPreferences.getInstance();
 
     // Retrieve existing history
-    List<String> historyList = prefs.getStringList('quizHistory') ?? [];
+    List<String> historyList = prefs.getStringList('quizHistoryLog') ?? [];
     //print('History List: $historyList');
     // Add the new history
     historyList.add(jsonEncode(history));
 
     // Save updated history
-    await prefs.setStringList('quizHistory', historyList);
+    await prefs.setStringList('quizHistoryLog', historyList);
 
     // Attempt to send pending history
     await sendPendingHistory();
@@ -30,7 +30,7 @@ class QuizHistoryManager {
   // Retrieve quiz history
   static Future<List<Map<String, dynamic>>> getQuizHistory() async {
     final prefs = await SharedPreferences.getInstance();
-    List<String> historyData = prefs.getStringList('quizHistory') ?? [];
+    List<String> historyData = prefs.getStringList('quizHistoryLog') ?? [];
     return historyData
         .map((e) => jsonDecode(e) as Map<String, dynamic>)
         .toList();
@@ -53,7 +53,9 @@ class QuizHistoryManager {
           history['sent'] = true; // Mark as sent
           List<String> updatedList =
               historyList.map((e) => jsonEncode(e)).toList();
-          await prefs.setStringList('quizHistory', updatedList);
+          if (history['length'] > 0) {
+            await prefs.setStringList('quizHistoryLog', updatedList);
+          }
         }
       } catch (e) {
         // Handle network error silently
@@ -93,10 +95,10 @@ class SpellQuizPage extends StatefulWidget {
   final String moduleIndex;
 
   const SpellQuizPage({
-    Key? key,
+    super.key,
     required this.moduleWords,
     required this.moduleIndex,
-  }) : super(key: key);
+  });
 
   @override
   _SpellQuizPageState createState() => _SpellQuizPageState();
@@ -270,9 +272,9 @@ class _SpellQuizPageState extends State<SpellQuizPage> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            Text(
+            const Text(
               'Choose the correct spelling for:',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -309,6 +311,13 @@ class _SpellQuizPageState extends State<SpellQuizPage> {
                               ? Colors.red
                               : Colors.white,
                       child: ListTile(
+                        shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              side: BorderSide(
+                                color: Colors.grey, // Border color
+                                width: 2.0, // Border width
+                              ),
+                            ),
                         title: Text(
                           option,
                           textAlign: TextAlign.center,
@@ -338,25 +347,6 @@ class _SpellQuizPageState extends State<SpellQuizPage> {
           ],
         ),
       ),
-      // bottomNavigationBar:
-      //     currentQuestionIndex == widget.moduleWords.length - 1 && hasAnswered
-      //         ? Padding(
-      //             padding: const EdgeInsets.all(16.0),
-      //             child: ElevatedButton(
-      //               onPressed: _showResults,
-      //               style: ElevatedButton.styleFrom(
-      //                 padding: const EdgeInsets.symmetric(vertical: 16),
-      //                 shape: RoundedRectangleBorder(
-      //                     borderRadius: BorderRadius.circular(8)),
-      //                 backgroundColor: Colors.purple,
-      //               ),
-      //               child: const Text(
-      //                 'Submit',
-      //                 style: TextStyle(fontSize: 18, color: Colors.white),
-      //               ),
-      //             ),
-      //           )
-      //         : const SizedBox.shrink(),
     );
   }
 }
@@ -369,13 +359,13 @@ class QuizResultPage extends StatelessWidget {
   final int timeSpent; // Add timeSpent parameter
 
   const QuizResultPage({
-    Key? key,
+    super.key,
     required this.score,
     required this.totalQuestions,
     required this.moduleWords, // Ensure this is required
     required this.moduleIndex, // And moduleIndex as well
     required this.timeSpent, // Pass time spent
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -392,9 +382,9 @@ class QuizResultPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
+            const Text(
               'Your Score',
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             Text(
               '$score/$totalQuestions',
@@ -424,7 +414,7 @@ class QuizResultPage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => HomePage(),
+                        builder: (context) => const HomePage(),
                       ),
                     );
                   },

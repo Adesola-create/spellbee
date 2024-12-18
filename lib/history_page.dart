@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HistoryPage extends StatefulWidget {
-  const HistoryPage({Key? key}) : super(key: key);
+  const HistoryPage({super.key});
 
   @override
   State<HistoryPage> createState() => _HistoryPageState();
@@ -24,11 +24,14 @@ class _HistoryPageState extends State<HistoryPage> {
   Future<void> _loadQuizHistory() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final historyData = prefs.getStringList('quizHistory') ?? [];
+      //await prefs.remove('quizHistory');
+      final historyData = prefs.getStringList('quizHistoryLog') ?? [];
+      print('Loaded quiz history: $historyData');
 
       setState(() {
         quizHistoryList = historyData
-            .map((e) => json.decode(e) as Map<String, dynamic>) // Decode JSON strings
+            .map((e) =>
+                json.decode(e) as Map<String, dynamic>) // Decode JSON strings
             .toList();
         _applyFilter(); // Apply default filter (show all)
       });
@@ -68,8 +71,9 @@ class _HistoryPageState extends State<HistoryPage> {
     });
 
     // Extract unique grades from quizHistoryList
-final grades = quizHistoryList
-        .map((history) => history['grade'] as String?) // Explicitly cast to String?
+    final grades = quizHistoryList
+        .map((history) =>
+            history['grade'] as String?) // Explicitly cast to String?
         .where((grade) => grade != null) // Ensure null grades are filtered out
         .cast<String>() // Cast to a list of strings
         .toSet()
@@ -77,8 +81,7 @@ final grades = quizHistoryList
       ..sort(); // Sort the grades in ascending order
 
 // Add "All" to the beginning of the list
-grades.insert(0, 'All');
-
+    grades.insert(0, 'All');
 
     return Scaffold(
       appBar: AppBar(
@@ -128,15 +131,19 @@ grades.insert(0, 'All');
                   });
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isSelected ? Colors.purple : Colors.grey[300],
+                  backgroundColor:
+                      isSelected ? Colors.purple : Colors.grey[300],
                   foregroundColor: isSelected ? Colors.white : Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(22.0),
                   ),
                 ),
-                child: Text(grade=='All' ? grade : 'Grade $grade',
-                  style: TextStyle(fontSize: 16,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                child: Text(
+                  grade == 'All' ? grade : 'Grade $grade',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight:
+                        isSelected ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
               ),
@@ -158,7 +165,8 @@ grades.insert(0, 'All');
         borderRadius: BorderRadius.circular(8), // Rounded corners
         border: Border.all(color: Colors.grey), // Border
       ),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12), // Reduced padding
+      padding: const EdgeInsets.symmetric(
+          vertical: 8, horizontal: 12), // Reduced padding
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -185,7 +193,9 @@ grades.insert(0, 'All');
                       _buildSubtitleItem(
                           history['sent'] == true ? Icons.check : Icons.close,
                           'Sync: ${history['sent'] == true ? "Yes" : "No"}',
-                          color: history['sent'] == true ? Colors.green : Colors.red),
+                          color: history['sent'] == true
+                              ? Colors.green
+                              : Colors.red),
                     ],
                   ),
                 ),
@@ -203,7 +213,8 @@ grades.insert(0, 'All');
                     );
                   } else {
                     scrollController.animateTo(
-                      scrollController.position.maxScrollExtent, // Scroll to the end
+                      scrollController
+                          .position.maxScrollExtent, // Scroll to the end
                       duration: const Duration(milliseconds: 300),
                       curve: Curves.easeInOut,
                     );

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class NextLessonPage extends StatelessWidget {
+  const NextLessonPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

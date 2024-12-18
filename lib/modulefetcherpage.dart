@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:spellbee/spell_quiz.dart'; // Import the page
+import 'spell_quiz.dart'; // Import the page
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ModuleFetcherPage extends StatefulWidget {
-  const ModuleFetcherPage({Key? key}) : super(key: key);
+  const ModuleFetcherPage({super.key});
 
   @override
   _ModuleFetcherPageState createState() => _ModuleFetcherPageState();

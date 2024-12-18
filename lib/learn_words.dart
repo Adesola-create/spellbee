@@ -7,8 +7,7 @@ class LearnWordsPage extends StatefulWidget {
   final String moduleIndex;
 
   const LearnWordsPage(
-      {Key? key, required this.moduleWords, required this.moduleIndex})
-      : super(key: key);
+      {super.key, required this.moduleWords, required this.moduleIndex});
 
   @override
   _LearnWordsPageState createState() => _LearnWordsPageState();
@@ -291,7 +290,7 @@ class _LearnWordsPageState extends State<LearnWordsPage> {
                 currentIndex < widget.moduleWords.length - 1
                     ? 'Next'
                     : 'Quiz',
-                style: TextStyle(fontSize: 18),
+                style: const TextStyle(fontSize: 18),
               ),
             ),
           ],

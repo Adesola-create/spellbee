@@ -6,7 +6,7 @@ import 'overview.dart';
 import 'account_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
   
   @override
   _HomePageState createState() => _HomePageState();
@@ -17,11 +17,11 @@ class _HomePageState extends State<HomePage> {
 
   // List of pages to display when navigating using BottomNavBar
   final List<Widget> _pages = [
-    DashboardPage(), // Dashboard page
-    SpellGradePage(),   // Exercise page
-    HistoryPage(),   // History page
-    OverviewPage(), // Challenge page
-    AccountPage(),   // Account page
+    const DashboardPage(), // Dashboard page
+    const SpellGradePage(),   // Exercise page
+    const HistoryPage(),   // History page
+    const OverviewPage(), // Challenge page
+    const AccountPage(),   // Account page
   ];
   
   get primaryColor => null;

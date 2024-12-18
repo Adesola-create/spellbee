@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:spellbee/spell_grade.dart';
+import 'spell_grade.dart';
 // For animations
 
 class CongratulationsScreen extends StatelessWidget {
-  const CongratulationsScreen({Key? key}) : super(key: key);
+  const CongratulationsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class CongratulationsScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Lottie Animation for Ribbons/Confetti
-            Image(
+            const Image(
               image: AssetImage(
                   'assets/images/animation.gif'), // Ensure you have this animation
               width: 300,
@@ -49,7 +49,7 @@ class CongratulationsScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => SpellGradePage(),),
+                  MaterialPageRoute(builder: (context) => const SpellGradePage(),),
                 );
                 
               },
