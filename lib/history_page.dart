@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:WordPro/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -86,7 +87,7 @@ class _HistoryPageState extends State<HistoryPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Quiz History'),
-        backgroundColor: Colors.purple,
+        // backgroundColor: Colors.purple,
       ),
       body: Column(
         children: [
@@ -132,7 +133,7 @@ class _HistoryPageState extends State<HistoryPage> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor:
-                      isSelected ? Colors.purple : Colors.grey[300],
+                      isSelected ? primaryColor : Colors.grey[300],
                   foregroundColor: isSelected ? Colors.white : Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(22.0),

@@ -1,3 +1,4 @@
+import 'package:WordPro/constants.dart';
 import 'package:WordPro/spell_grade.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,7 @@ class GradeDetailPage extends StatefulWidget {
 }
 
 class _GradeDetailPageState extends State<GradeDetailPage> {
+  
   Future<void> deliverPurchase() async {
     final prefs = await SharedPreferences.getInstance();
     final String? userId = prefs.getString('userId');
@@ -69,148 +71,175 @@ class _GradeDetailPageState extends State<GradeDetailPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true, // Extend body to overlap with AppBar
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(50),
-        child: AppBar(
-          backgroundColor: Colors.transparent, // Transparent AppBar
-          elevation: 0, // Remove shadow
-          leading: IconButton(
+Widget build(BuildContext context) {
+  double originalPrice = double.parse(widget.price); // Original price
+  double discountPercentage = 20.0; // Discount percentage
+
+  // Calculate discount price
+  double discountPrice = originalPrice - (originalPrice * discountPercentage / 100);
+
+  return Scaffold(
+    extendBodyBehindAppBar: true,
+    appBar: PreferredSize(
+      preferredSize: const Size.fromHeight(50),
+      child: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Container(
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white,
+            ),
+            padding: const EdgeInsets.all(8.0),
+            child: const Icon(
+              Icons.arrow_back,
+              color: Colors.black,
+            ),
+          ),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [
+          IconButton(
             icon: Container(
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white, // White background
+                color: Colors.white,
               ),
               padding: const EdgeInsets.all(8.0),
               child: const Icon(
-                Icons.arrow_back,
-                color: Colors.black, // Black icon color
+                Icons.favorite_border,
+                color: Colors.black,
               ),
             ),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {},
           ),
-          actions: [
-            // Favorite (Love) Icon
-            IconButton(
-              icon: Container(
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white, // White background
-                ),
-                padding: const EdgeInsets.all(8.0),
-                child: const Icon(
-                  Icons.favorite_border,
-                  color: Colors.black, // Black icon color
-                ),
-              ),
-              onPressed: () {
-                // Handle favorite action
-              },
-            ),
-            const SizedBox(width: 10), // Add spacing between icons
-            // Share Icon
-            IconButton(
-              icon: Container(
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white, // White background
-                ),
-                padding: const EdgeInsets.all(8.0),
-                child: const Icon(
-                  Icons.share,
-                  color: Colors.black, // Black icon color
-                ),
-              ),
-              onPressed: () {
-                // Handle share action
-              },
-            ),
-            const SizedBox(
-                width: 10), // Add spacing before the end of the AppBar
-          ],
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Fullscreen Image
-            Container(
-              height: 350, // Adjust as needed
-              width: double.infinity,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: FileImage(File(widget.imagePath)),
-                  fit: BoxFit.cover, // Image covers the width
-                ),
-              ),
-            ),
-            // Price Container directly under the image
-            Container(
-              padding: const EdgeInsets.all(16),
+          const SizedBox(width: 10),
+          IconButton(
+            icon: Container(
               decoration: const BoxDecoration(
-                color: Colors.green,
+                shape: BoxShape.circle,
+                color: Colors.white,
               ),
-              child: Text(
-                widget.price,
+              padding: const EdgeInsets.all(8.0),
+              child: const Icon(
+                Icons.share,
+                color: Colors.black,
+              ),
+            ),
+            onPressed: () {},
+          ),
+          const SizedBox(width: 10),
+        ],
+      ),
+    ),
+    body: SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            height: 350,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: FileImage(File(widget.imagePath)),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: const BoxDecoration(
+              color: Colors.black,
+            ),
+            child: ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(
+                '\$$discountPrice',
                 style: const TextStyle(
                   fontSize: 22,
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-            // Content below the price container
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'GRADE ${widget.grade}',
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    widget.description,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      //fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    '- Learning common sight words (e.g., "the", "and", "to")\n'
-                    '- Simple CVC (consonant-vowel-consonant) word families\n'
-                    '- Short vowel sounds and simple word families',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      deliverPurchase(); // Add to cart action
-                    },
-                    style: ElevatedButton.styleFrom(
-                      minimumSize:
-                          const Size(double.infinity, 50), // Full width
-                      backgroundColor: Colors.purple,
-                    ),
-                    child: const Text(
-                      'Buy Now',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
+              subtitle: Text(
+                '\$$originalPrice',
+                style: const TextStyle(
+                  fontSize: 18,
+                  color: Colors.white70,
+                  decoration: TextDecoration.lineThrough,
+                  decorationColor: Colors.white,
+                ),
+              ),
+              trailing: Text(
+                '$discountPercentage%',
+                style: const TextStyle(
+                  fontSize: 24,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ],
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${widget.grade} Resources',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  widget.description,
+                  style: const TextStyle(
+                    fontSize: 18,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'This grade features:',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  '- Over 1,000 English learning words\n'
+                  '- Suitable for vocabulary development\n'
+                  '- Word mastery for everyday usage\n'
+                  '- Spelling Bee competition preparatory',
+                  style: TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+    bottomNavigationBar: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      color: Colors.white, // Background color for the button container
+      child: ElevatedButton(
+        onPressed: () {
+          deliverPurchase(); // Add to cart action
+        },
+        style: ElevatedButton.styleFrom(
+          minimumSize: const Size(double.infinity, 60),
+          backgroundColor: primaryColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+        ),
+        child: const Text(
+          'Buy Now',
+          style: TextStyle(color: Colors.white, fontSize: 20),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

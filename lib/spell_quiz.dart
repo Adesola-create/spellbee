@@ -375,8 +375,8 @@ class QuizResultPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Quiz Results'),
-        backgroundColor: Colors.purple,
+        title: const Text('Quiz Results', style: TextStyle(fontSize: 22),),
+       // backgroundColor: Colors.purple,
       ),
       body: Center(
         child: Column(

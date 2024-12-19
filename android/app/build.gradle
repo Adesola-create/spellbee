@@ -13,6 +13,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+        coreLibraryDesugaringEnabled true
     }
 
     kotlinOptions {
@@ -30,13 +31,23 @@ android {
         versionName = flutter.versionName
     }
 
-    buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
-        }
+    signingConfigs {
+    release {
+        keyAlias 'WordPro'            // The alias you specified when generating the keystore
+        keyPassword 'WordPro.1'    // The password you set when generating the keystore
+        storeFile file('WordPro-upload-keystore.jks')  // Path to your keystore file
+        storePassword 'WordPro.1' 
     }
+}
+buildTypes {
+    release {
+        signingConfig signingConfigs.release
+        minifyEnabled true // Disable code shrinking
+        shrinkResources true // Keep resource shrinking enabled // Set to true if you want code minification (shrink resources)
+        proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+    }
+}
+
 }
 
 flutter {
@@ -44,5 +55,6 @@ flutter {
 }
 dependencies {
     // Other dependencies
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
     implementation 'com.android.billingclient:billing:7.1.1'
 }

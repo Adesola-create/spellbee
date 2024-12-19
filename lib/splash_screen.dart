@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'home_page.dart';
+import 'constants.dart';
 
 
 class SplashScreen extends StatefulWidget {
@@ -53,7 +54,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _navigateToIntro() async {
-    await Future.delayed(const Duration(seconds: 6));
+    await Future.delayed(const Duration(seconds: 3));
     Navigator.pushReplacementNamed(
         context, '/intro'); // Updated to navigate to IntroScreen
   }
@@ -67,7 +68,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.blue, // Change this to your primary color
+      color: primaryColor, // Change this to your primary color
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
       child: Scaffold(
@@ -77,9 +78,9 @@ class _SplashScreenState extends State<SplashScreen>
             animation: _typingAnimation,
             builder: (context, child) {
               return Text(
-                'wordpro'.substring(
+                'WordPro'.substring(
                     0,
-                    (_typingAnimation.value * 'wordpro'.length)
+                    (_typingAnimation.value * 'WordPro'.length)
                         .ceil()), // Corrected for 'BraveIQ'
                 style: const TextStyle(
                   color: Colors.white,

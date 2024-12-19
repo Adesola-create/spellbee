@@ -5,7 +5,7 @@
 <uses-permission android:name="com.android.vending.BILLING"/>
     <application
     android:enableOnBackInvokedCallback="true"
-        android:label="wordpro"
+        android:label="WordPro"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

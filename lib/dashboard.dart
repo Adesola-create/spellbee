@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:WordPro/account_page.dart';
+//import 'package:WordPro/userprofile.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart';
-
+import 'constants.dart';
 import 'grade_detailpage.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -48,8 +50,6 @@ class _DashboardPageState extends State<DashboardPage> {
       if (response.statusCode == 200) {
         List<dynamic> fetchedData = json.decode(response.body);
 
-        
-
         // Download and save images locally
         await saveImagesLocally(fetchedData);
 
@@ -71,8 +71,8 @@ class _DashboardPageState extends State<DashboardPage> {
     final Directory appDocDir = await getApplicationDocumentsDirectory();
     final Dio dio = Dio();
 
-        // Save fetched data to SharedPreferences
-        SharedPreferences prefs = await SharedPreferences.getInstance();
+    // Save fetched data to SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
     for (var grade in data) {
       String imageUrl = grade['image'];
@@ -104,10 +104,6 @@ class _DashboardPageState extends State<DashboardPage> {
             const Text('Hi, Dee'),
           ],
         ),
-        // actions: [
-        //   IconButton(icon: const Icon(Icons.shopping_cart), onPressed: () {}),
-        //   IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
-        // ],
       ),
       body: isFetching && localGradeData.isEmpty
           ? const Center(child: CircularProgressIndicator())
@@ -116,7 +112,7 @@ class _DashboardPageState extends State<DashboardPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildWelcomeCard(),
+                  _buildWelcomeCardCarousel(),
                   const SizedBox(height: 20),
                   const Text(
                     'Categories',
@@ -126,10 +122,12 @@ class _DashboardPageState extends State<DashboardPage> {
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 10,
                       mainAxisSpacing: 10,
+                      childAspectRatio: 0.55,
                     ),
                     itemCount: localGradeData.length,
                     itemBuilder: (context, index) {
@@ -141,7 +139,8 @@ class _DashboardPageState extends State<DashboardPage> {
                             MaterialPageRoute(
                               builder: (context) => GradeDetailPage(
                                 grade: grade['title'],
-                                imagePath: grade['localImagePath'] ?? grade['image'],
+                                imagePath:
+                                    grade['localImagePath'] ?? grade['image'],
                                 price: grade['price'],
                                 description: grade['description'],
                               ),
@@ -152,6 +151,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           grade['title'],
                           grade['localImagePath'] ?? grade['image'],
                           double.parse(grade['price']),
+                          grade['description']
                         ),
                       );
                     },
@@ -162,18 +162,20 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _buildCategoryCard(String title, String imagePath, double price) {
+  Widget _buildCategoryCard(String title, String imagePath, double price, description) {
     return Card(
-      elevation: 4,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(15), // Rounded corners for the card
       ),
+      elevation: 0, // Add shadow to the card for better UI
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment:
+            CrossAxisAlignment.start, // Align content to the start
         children: [
           // Image section
           Container(
-            height: 135,
+            height: 180, // Full height for the image
+            width: double.infinity, // Make the image occupy full width
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(15),
@@ -183,30 +185,68 @@ class _DashboardPageState extends State<DashboardPage> {
                 image: File(imagePath).existsSync()
                     ? FileImage(File(imagePath))
                     : NetworkImage(imagePath) as ImageProvider,
-                fit: BoxFit.cover,
+                fit: BoxFit.cover, // Cover the entire container
               ),
             ),
           ),
-          // Title and price section
+          // Title, price, and button section
           Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            padding: const EdgeInsets.all(
+                8.0), // Padding for title, price, and button
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    overflow: TextOverflow.ellipsis,
+                // Title
+                Text(
+                  '$title Resources',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                   ),
+                  overflow: TextOverflow.ellipsis, // Handle long titles
+                  maxLines: 1,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(height: 4), // Spacing between title and price
+                // Price
                 Text(
                   '\$${price.toStringAsFixed(2)}',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.green,
+                    color: Colors.black,
+                  ),
+                  overflow: TextOverflow.ellipsis, // Handle long price text
+                ),
+                const SizedBox(height: 8), // Spacing between price and button
+                // Buy Now button
+                SizedBox(
+                  width: double.infinity, // Make the button full width
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => GradeDetailPage(
+                                grade: title,
+                                imagePath: imagePath,
+                                price: price.toStringAsFixed(2),
+                                description: description,
+                              ),
+                            ),
+                          );// Handle the Buy Now button press
+                      
+                      },
+                  style: ElevatedButton.styleFrom(
+  backgroundColor: primaryColor, // Blue background color for the button
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(8), // Rounded corners for the button
+  ),
+  padding: const EdgeInsets.symmetric(
+    vertical: 12, // Button height
+  ),
+),
+
+                    child: const Text('Buy Now', style: TextStyle(color: Colors.white)),
                   ),
                 ),
               ],
@@ -217,54 +257,83 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _buildWelcomeCard() {
+  Widget _buildWelcomeCardCarousel() {
+    final List<Widget> cards = [
+      _buildSingleWelcomeCard(
+        'Welcome!',
+        'Start your journey with simple and fun activities perfect for beginners and all levels of English learners.',
+        color: primaryColor,
+      ),
+      _buildSingleWelcomeCard(
+        'Learn Words!',
+        'Explore new words and phrases daily with engaging lessons and activities.',
+        color: const Color.fromARGB(255, 0, 71, 3)
+      ),
+      _buildSingleWelcomeCard(
+        'Achieve Goals!',
+        'Track your progress and achieve your learning milestones with ease.',
+        color: const Color.fromARGB(255, 56, 4, 141)
+      ),
+    ];
+
+    return SizedBox(
+      height: 200, // Height of the carousel
+      child: PageView(
+        controller: PageController(viewportFraction: 0.95), // Swipeable cards
+        children: cards,
+      ),
+    );
+  }
+
+  Widget _buildSingleWelcomeCard(String title, String description,
+      {color = primaryColor}) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(
+          horizontal: 5), // Adds spacing between cards
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.purple,
+        color: color,
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Welcome!',
-            style: TextStyle(
+          Text(
+            title,
+            style: const TextStyle(
               color: Colors.white,
-              fontSize: 24,
+              fontSize: 30,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 20),
-          const Text(
-            'Start your journey with simple and fun activities perfect for beginners and all level of english learners.'
-            
-            '\n Learn English words and phrases in a fun and interactive way.',
-            
-            style: TextStyle(color: Colors.white),
+          Text(
+            description,
+            style: const TextStyle(color: Colors.white, fontSize: 17),
           ),
-          // const SizedBox(height: 20),
-          // ElevatedButton(
-          //   onPressed: () {
-          //     // Navigate to your next page
-          //   },
-          //   style: ElevatedButton.styleFrom(),
-          //   child: const Text('Get Started'),
-          // ),
         ],
       ),
     );
   }
 
   Widget _buildProfilePicture() {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        image: DecorationImage(
-          image: AssetImage('assets/images/profilepic.jpg'),
-          fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => AccountPage()), // Navigate to ProfilePage
+        );
+      },
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          image: DecorationImage(
+            image: AssetImage('assets/images/profilepic.jpg'),
+            fit: BoxFit.cover,
+          ),
         ),
       ),
     );

@@ -1,3 +1,4 @@
+import 'package:WordPro/constants.dart';
 import 'package:flutter/material.dart';
 //import 'login_page.dart';
 //import 'signup_page.dart';
@@ -10,7 +11,7 @@ class WelcomeScreen extends StatelessWidget {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          color: Colors.purple,
+          color: primaryColor,
         ),
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -53,7 +54,7 @@ class WelcomeScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       backgroundColor: Colors.white,
-                      foregroundColor: Colors.purple,
+                      foregroundColor: primaryColor,
                     ),
                     child: const Text(
                       'Login',
@@ -74,7 +75,7 @@ class WelcomeScreen extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      backgroundColor: Colors.purple,
+                      backgroundColor: primaryColor,
                       foregroundColor: Colors.white,
                     ),
                     child: const Text(

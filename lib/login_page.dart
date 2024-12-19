@@ -3,8 +3,6 @@ import 'home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert'; // For jsonDecode
-
-//import 'home_page.dart';
 import 'constants.dart';
 import 'signup_page.dart';
 import 'forgot_password.dart';

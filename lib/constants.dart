@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 
-const Color primaryColor = Color.fromARGB(255, 102, 16, 242);
+const Color primaryColor = Color.fromARGB(255, 241, 95, 27);
 final Color primaryColorLight = primaryColor.withOpacity(0.4); // Lighter version
 
 String toTitleCase(String text) {
