@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:WordPro/account_page.dart';
+import 'package:WordPro/home_page.dart';
 //import 'package:WordPro/userprofile.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:dio/dio.dart';
 import 'constants.dart';
 import 'grade_detailpage.dart';
@@ -20,6 +21,7 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   List<dynamic> localGradeData = [];
   bool isFetching = false;
+  String userName = '';
 
   @override
   void initState() {
@@ -30,14 +32,19 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Future<void> loadLocalData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+
     String? gradeDataString = prefs.getString('gradeData');
+    print(gradeDataString);
 
     if (gradeDataString != null) {
       setState(() {
+        userName = prefs.getString('userName') ?? '';
         localGradeData = json.decode(gradeDataString);
       });
     }
   }
+
+
 
   Future<void> fetchAndUpdateDataSilently() async {
     setState(() {
@@ -76,6 +83,9 @@ class _DashboardPageState extends State<DashboardPage> {
 
     for (var grade in data) {
       String imageUrl = grade['image'];
+      String productId = grade['productid'];
+      String playPrice = await getPlayPrice(data, productId);
+
       String imageName = imageUrl.split('/').last;
       String imagePath = '${appDocDir.path}/$imageName';
 
@@ -88,20 +98,49 @@ class _DashboardPageState extends State<DashboardPage> {
         }
       } else {
         grade['localImagePath'] = imagePath;
+        grade['playPrice'] = playPrice;
       }
     }
     await prefs.setString('gradeData', json.encode(data));
+    setState(() {
+      localGradeData = data;
+    });
+  }
+
+  Future<String> getPlayPrice(
+      List<dynamic> fetchedGrades, String productId) async {
+    // Extract all productIds from fetchedExams
+    final Set<String> serverProductIds =
+        fetchedGrades.map((exam) => exam['productid'] as String).toSet();
+
+    // Query Play Console for all product details
+    final ProductDetailsResponse response =
+        await InAppPurchase.instance.queryProductDetails(serverProductIds);
+
+    // Map Play Console prices for easy lookup
+    final Map<String, ProductDetails> playConsolePrices = {
+      for (var product in response.productDetails) product.id: product,
+    };
+
+    // Match the entered productId
+    if (playConsolePrices.containsKey(productId)) {
+      return playConsolePrices[productId]!
+          .price; // Return the Play Console price
+    } else {
+      return 'N/A'; // Fallback if the productId is not found
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Row(
           children: [
             _buildProfilePicture(),
             const SizedBox(width: 8),
-            const Text('Hi, Dee'),
+            Text('Hi, $userName'),
           ],
         ),
       ),
@@ -141,18 +180,19 @@ class _DashboardPageState extends State<DashboardPage> {
                                 grade: grade['title'],
                                 imagePath:
                                     grade['localImagePath'] ?? grade['image'],
-                                price: grade['price'],
+                                price: grade['playPrice'] ?? grade['price'],
                                 description: grade['description'],
+                                productid: grade['productid'],
                               ),
                             ),
                           );
                         },
                         child: _buildCategoryCard(
-                          grade['title'],
-                          grade['localImagePath'] ?? grade['image'],
-                          double.parse(grade['price']),
-                          grade['description']
-                        ),
+                            grade['title'],
+                            grade['localImagePath'] ?? grade['image'],
+                            grade['playPrice'] ?? grade['price'],
+                            grade['description'],
+                            grade['productid']),
                       );
                     },
                   ),
@@ -162,7 +202,8 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _buildCategoryCard(String title, String imagePath, double price, description) {
+  Widget _buildCategoryCard(
+      String title, String imagePath, String price, description, productid) {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15), // Rounded corners for the card
@@ -209,7 +250,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 const SizedBox(height: 4), // Spacing between title and price
                 // Price
                 Text(
-                  '\$${price.toStringAsFixed(2)}',
+                  price,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -224,29 +265,31 @@ class _DashboardPageState extends State<DashboardPage> {
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => GradeDetailPage(
-                                grade: title,
-                                imagePath: imagePath,
-                                price: price.toStringAsFixed(2),
-                                description: description,
-                              ),
-                            ),
-                          );// Handle the Buy Now button press
-                      
-                      },
-                  style: ElevatedButton.styleFrom(
-  backgroundColor: primaryColor, // Blue background color for the button
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(8), // Rounded corners for the button
-  ),
-  padding: const EdgeInsets.symmetric(
-    vertical: 12, // Button height
-  ),
-),
-
-                    child: const Text('Buy Now', style: TextStyle(color: Colors.white)),
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => GradeDetailPage(
+                            grade: title,
+                            imagePath: imagePath,
+                            price: price,
+                            description: description,
+                            productid: productid,
+                          ),
+                        ),
+                      ); // Handle the Buy Now button press
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          primaryColor, // Blue background color for the button
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                            8), // Rounded corners for the button
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12, // Button height
+                      ),
+                    ),
+                    child: const Text('Buy Now',
+                        style: TextStyle(color: Colors.white)),
                   ),
                 ),
               ],
@@ -264,16 +307,12 @@ class _DashboardPageState extends State<DashboardPage> {
         'Start your journey with simple and fun activities perfect for beginners and all levels of English learners.',
         color: primaryColor,
       ),
-      _buildSingleWelcomeCard(
-        'Learn Words!',
-        'Explore new words and phrases daily with engaging lessons and activities.',
-        color: const Color.fromARGB(255, 0, 71, 3)
-      ),
-      _buildSingleWelcomeCard(
-        'Achieve Goals!',
-        'Track your progress and achieve your learning milestones with ease.',
-        color: const Color.fromARGB(255, 56, 4, 141)
-      ),
+      _buildSingleWelcomeCard('Learn Words!',
+          'Explore new words and phrases daily with engaging lessons and activities.',
+          color: const Color.fromARGB(255, 0, 71, 3)),
+      _buildSingleWelcomeCard('Achieve Goals!',
+          'Track your progress and achieve your learning milestones with ease.',
+          color: const Color.fromARGB(255, 56, 4, 141)),
     ];
 
     return SizedBox(
@@ -322,7 +361,7 @@ class _DashboardPageState extends State<DashboardPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => AccountPage()), // Navigate to ProfilePage
+              builder: (context) => HomePage(selectedIndex: 4)), // Navigate to ProfilePage
         );
       },
       child: Container(
@@ -331,7 +370,7 @@ class _DashboardPageState extends State<DashboardPage> {
         decoration: const BoxDecoration(
           shape: BoxShape.circle,
           image: DecorationImage(
-            image: AssetImage('assets/images/profilepic.jpg'),
+            image: AssetImage('assets/images/profilepic.png'),
             fit: BoxFit.cover,
           ),
         ),

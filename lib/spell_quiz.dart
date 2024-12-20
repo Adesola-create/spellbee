@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:WordPro/constants.dart';
 import 'package:flutter/material.dart';
 import 'home_page.dart';
 import 'spell_word.dart';
@@ -7,6 +8,7 @@ import 'history_model.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:percent_indicator/percent_indicator.dart';
 //import 'dart:io';
 
 class QuizHistoryManager {
@@ -312,12 +314,12 @@ class _SpellQuizPageState extends State<SpellQuizPage> {
                               : Colors.white,
                       child: ListTile(
                         shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              side: BorderSide(
-                                color: Colors.grey, // Border color
-                                width: 2.0, // Border width
-                              ),
-                            ),
+                          borderRadius: BorderRadius.circular(12.0),
+                          side: BorderSide(
+                            color: Colors.grey, // Border color
+                            width: 2.0, // Border width
+                          ),
+                        ),
                         title: Text(
                           option,
                           textAlign: TextAlign.center,
@@ -375,31 +377,65 @@ class QuizResultPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Quiz Results', style: TextStyle(fontSize: 22),),
-       // backgroundColor: Colors.purple,
+        title: const Text('Quiz Results',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        // backgroundColor: Colors.purple,
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text(
-              'Your Score',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              'YOUR SCORE',
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
             ),
             Text(
               '$score/$totalQuestions',
               style: const TextStyle(
-                  fontSize: 32,
+                  fontSize: 42,
                   fontWeight: FontWeight.bold,
-                  color: Colors.purple),
+                  color: primaryColor),
             ),
-            Text(
-              '${percentage.toString()}%',
-              style: const TextStyle(
-                  fontSize: 52,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey),
+            const SizedBox(height: 26),
+
+            // Text(
+            //   '${percentage.toString()}%',
+            //   style: const TextStyle(
+            //       fontSize: 52,
+            //       fontWeight: FontWeight.bold,
+            //       color: Colors.grey),
+            // ),
+
+            CircularPercentIndicator(
+              radius: 108.0,
+              lineWidth: 20.0,
+              percent: percentage / 100,
+              center: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "${percentage.toStringAsFixed(0)}%",
+                    style: const TextStyle(
+                      fontSize: 46,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    "Quiz Score",
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+              progressColor: primaryColor,
+              backgroundColor: Colors.grey[400]!,
+              circularStrokeCap: CircularStrokeCap.round,
             ),
+            const SizedBox(height: 16),
             const SizedBox(height: 16),
             Text(
               'Time Spent: ${Duration(seconds: timeSpent).inMinutes} min ${Duration(seconds: timeSpent).inSeconds % 60} sec',
@@ -409,51 +445,173 @@ class QuizResultPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HomePage(),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 32, vertical: 16),
-                    backgroundColor: Colors.purple,
-                  ),
-                  child: const Text('Back to Home',
-                      style: TextStyle(fontSize: 18, color: Colors.white)),
-                ),
+               GestureDetector(
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const HomePage(selectedIndex: 1),
+      ),
+    );
+  },
+  child: Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.purple, width: 2), // Circular outline
+        ),
+        child: const Icon(
+          Icons.arrow_back, // Back icon
+          color: Colors.purple,
+          size: 28,
+        ),
+      ),
+      const SizedBox(height: 8), // Space between icon and label
+      const Text(
+        "Exercise",
+        style: TextStyle(
+          fontSize: 14,
+          color: Colors.purple,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ],
+  ),
+),
+const SizedBox(width: 16),
+GestureDetector(
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const HomePage(selectedIndex: 2),
+      ),
+    );
+  },
+  child: Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.purple, width: 2), // Circular outline
+        ),
+        child: const Icon(
+          Icons.history, // Back icon
+          color: Colors.purple,
+          size: 28,
+        ),
+      ),
+      const SizedBox(height: 8), // Space between icon and label
+      const Text(
+        "History",
+        style: TextStyle(
+          fontSize: 14,
+          color: Colors.purple,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ],
+  ),
+),
+
+const SizedBox(width: 16),
+GestureDetector(
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const HomePage(selectedIndex: 3),
+      ),
+    );
+  },
+  child: Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.purple, width: 2), // Circular outline
+        ),
+        child: const Icon(
+          Icons.graphic_eq, // Back icon
+          color: Colors.purple,
+          size: 28,
+        ),
+      ),
+      const SizedBox(height: 8), // Space between icon and label
+      const Text(
+        "Overview",
+        style: TextStyle(
+          fontSize: 14,
+          color: Colors.purple,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ],
+  ),
+),
+
+
+
+
                 const SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (passed) {
-                      await navigateToSpellWordPage(
-                          context, moduleIndex); // Pass `moduleIndex` directly
-                    } else {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SpellQuizPage(
-                            moduleWords: moduleWords,
-                            moduleIndex: moduleIndex,
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 32, vertical: 16),
-                    backgroundColor: passed ? Colors.green : Colors.orange,
-                  ),
-                  child: Text(
-                    passed ? 'Next Lesson' : 'Retake Quiz',
-                    style: const TextStyle(fontSize: 18, color: Colors.white),
-                  ),
-                ),
+               GestureDetector(
+  onTap: () async {
+    if (passed) {
+      await navigateToSpellWordPage(context, moduleIndex); // Pass `moduleIndex` directly
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SpellQuizPage(
+            moduleWords: moduleWords,
+            moduleIndex: moduleIndex,
+          ),
+        ),
+      );
+    }
+  },
+  child: Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: passed ? Colors.green : Colors.orange, // Green or orange border
+            width: 2,
+          ),
+        ),
+        child: Icon(
+          passed ? Icons.arrow_forward : Icons.refresh, // Forward or refresh icon
+          color: passed ? Colors.green : Colors.orange,
+          size: 28,
+        ),
+      ),
+      const SizedBox(height: 8), // Space between icon and label
+      Text(
+        passed ? 'Next Lesson' : 'Retake Quiz', // Label based on condition
+        style: TextStyle(
+          fontSize: 14,
+          color: passed ? Colors.green : Colors.orange, // Green or orange text
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ],
+  ),
+),
+
               ],
             ),
           ],

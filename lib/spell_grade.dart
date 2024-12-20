@@ -26,6 +26,7 @@ class _SpellGradePageState extends State<SpellGradePage> {
   Future<void> loadStoredGrades() async {
     final prefs = await SharedPreferences.getInstance();
     final storedGrades = prefs.getString('myProducts');
+    print(storedGrades);
     if (storedGrades != null) {
       setState(() {
         _grades = json.decode(storedGrades);
@@ -37,6 +38,11 @@ class _SpellGradePageState extends State<SpellGradePage> {
       });
     }
   }
+
+  String extractFileName(String url) {
+  Uri uri = Uri.parse(url);
+  return '/data/user/0/com.livepetal.wordpro/app_flutter/${uri.pathSegments.last}'; // Gets the last part of the path
+}
 
   Future<void> fetchSpellGrades() async {
     final prefs = await SharedPreferences.getInstance();
@@ -73,7 +79,10 @@ class _SpellGradePageState extends State<SpellGradePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Purchased Spell Grades'),
+        automaticallyImplyLeading: false,
+        title: const Text('Purchased Spell Grades', 
+        style: TextStyle(
+              color: Colors.black, fontSize: 22, fontWeight: FontWeight.bold),),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -91,6 +100,7 @@ class _SpellGradePageState extends State<SpellGradePage> {
                     truncatedDescription =
                         '${truncatedDescription.substring(0, 100)}...';
                   }
+      String? imageUrl = extractFileName(grade['image']);
 
                   return GestureDetector(
                     onTap: () {
@@ -125,10 +135,8 @@ class _SpellGradePageState extends State<SpellGradePage> {
                               borderRadius: BorderRadius.circular(10),
                               image: DecorationImage(
                                 fit: BoxFit.cover,
-                                image: (grade['localImagePath'] != null &&
-                                        File(grade['localImagePath'])
-                                            .existsSync())
-                                    ? FileImage(File(grade['localImagePath']))
+                                image: (File(imageUrl).existsSync())
+                                    ? FileImage(File(imageUrl))
                                     : NetworkImage(grade['image'])
                                         as ImageProvider,
                               ),
@@ -159,7 +167,8 @@ class _SpellGradePageState extends State<SpellGradePage> {
                                     color: Colors.black54,
                                   ),
                                   maxLines: 3, // Limit the number of lines
-                                  overflow: TextOverflow.ellipsis, // Add ellipsis
+                                  overflow:
+                                      TextOverflow.ellipsis, // Add ellipsis
                                 ),
                               ],
                             ),

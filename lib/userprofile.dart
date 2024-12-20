@@ -25,7 +25,7 @@ class ProfilePage extends StatelessWidget {
                   width: 2.0, // Increase border width
                 ),
                 image: const DecorationImage(
-                  image: AssetImage('assets/images/profilepic.jpg'),
+                  image: AssetImage('assets/images/profilepic.png'),
                   fit: BoxFit.cover, // Ensure the image fills the circle
                 ),
               ),

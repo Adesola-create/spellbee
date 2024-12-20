@@ -92,8 +92,6 @@ class _LoginScreenState extends State<LoginScreen> {
           await prefs.setString('userId', data['user']['id']);
           await prefs.setString('userName',
               '${data['user']['firstname']} ${data['user']['lastname']}');
-          await prefs.setString('full_name',
-              '${data['user']['firstname']} ${data['user']['lastname']}');
           await prefs.setString('userEmail', data['user']['email']);
           await prefs.setString('userPhone', data['user']['phone']);
          

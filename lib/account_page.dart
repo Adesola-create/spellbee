@@ -76,7 +76,7 @@ class _AccountPageState extends State<AccountPage> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       profileImageUrl = prefs.getString('profile_photo') ??
-          'assets/images/profilepic.jpg'; // Default placeholder
+          'assets/images/profilepic.png'; // Default placeholder
     });
   }
 
@@ -222,7 +222,7 @@ class _AccountPageState extends State<AccountPage> {
               radius: 36.0,
               backgroundImage: profileImageUrl.isNotEmpty
                   ? FileImage(File(profileImageUrl))
-                  : const AssetImage('assets/images/profilepic.jpg')
+                  : const AssetImage('assets/images/profilepic.png')
                       as ImageProvider,
               onBackgroundImageError: (_, __) {
                 // Handle fallback if the image is invalid

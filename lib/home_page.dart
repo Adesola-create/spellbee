@@ -6,7 +6,9 @@ import 'overview.dart';
 import 'account_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final int selectedIndex;  // Add this parameter
+
+  const HomePage({super.key, this.selectedIndex = 0});
   
   @override
   _HomePageState createState() => _HomePageState();
@@ -23,12 +25,28 @@ class _HomePageState extends State<HomePage> {
     const OverviewPage(), // Challenge page
     const AccountPage(),   // Account page
   ];
-  
+  @override
+  void initState() {
+    super.initState();
+    // Set the current index based on the passed value
+    _currentIndex = widget.selectedIndex;
+  }
   get primaryColor => null;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async {
+        // If the current index is not 0 (the index tab), navigate to index tab
+        if (_currentIndex != 0) {
+          setState(() {
+            _currentIndex = 0; // Set to the index tab
+          });
+          return false; // Prevent the default back action
+        }
+        return true; // Allow back navigation if on the index tab
+      },
+    child: Scaffold(
       body: _pages[_currentIndex],  // Show the selected page
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -69,6 +87,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
+    ),
     );
   }
 

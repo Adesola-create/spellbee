@@ -213,14 +213,9 @@ class _OverviewPageState extends State<OverviewPage> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 255, 255), // Dark background
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
         title: const Text(
           'Learning Insight',
           style: TextStyle(

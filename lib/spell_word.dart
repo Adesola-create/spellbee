@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:WordPro/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'learn_words.dart';
@@ -211,20 +212,29 @@ class _SpellWordPageState extends State<SpellWordPage> {
                                 } else {
                                   // Show dialog for locked module
                                   showDialog(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                      title: const Text('Locked Module'),
-                                      content: const Text(
-                                          'This module is not yet unlocked.'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.of(context).pop(),
-                                          child: const Text('OK'),
-                                        ),
-                                      ],
-                                    ),
-                                  );
+  context: context,
+  builder: (context) => AlertDialog(
+    backgroundColor: primaryColor, // Add purple background color
+    title: const Text(
+      'Locked Module',
+      style: TextStyle(color: Colors.white), // Make text color white for contrast
+    ),
+    content: const Text(
+      'This module is not yet unlocked.\nYou need to pass the previous module quiz to unlock this module',
+      style: TextStyle(color: Colors.white, fontSize: 16), // Make text color white for contrast
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.of(context).pop(),
+        child: const Text(
+          'OK',
+          style: TextStyle(color: Colors.white), // Make button text white
+        ),
+      ),
+    ],
+  ),
+);
+
                                 }
                               },
                             ),

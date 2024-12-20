@@ -86,7 +86,10 @@ class _HistoryPageState extends State<HistoryPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Quiz History'),
+        automaticallyImplyLeading: false,
+        title: const Text('Quiz History',
+        style: TextStyle(
+              color: Colors.black, fontSize: 22, fontWeight: FontWeight.bold),),
         // backgroundColor: Colors.purple,
       ),
       body: Column(

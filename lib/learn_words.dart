@@ -203,10 +203,28 @@ class _LearnWordsPageState extends State<LearnWordsPage> {
     final wordData = widget.moduleWords[currentIndex];
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Module ${widget.moduleIndex}'),
-        elevation: 0, // No shadow for seamless design
+  appBar: AppBar(
+  title: Text('Module ${widget.moduleIndex}',style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold)),
+  elevation: 0, // No shadow for seamless design
+  actions: [
+    Padding(
+      padding: const EdgeInsets.only(right: 16.0), // Add some padding
+      child: Center(
+        child: Text(
+          '${currentIndex+1} OF ${widget.moduleWords.length}', // Display currentIndex or moduleIndex
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+           // color: Colors.white, // Change color if needed
+          ),
+        ),
       ),
+    ),
+  ],
+),
+
       body: Stack(
         children: [
           // Main Content
