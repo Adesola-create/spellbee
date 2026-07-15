@@ -83,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
         },
       ).timeout(const Duration(seconds: 60));
 
-      print(response.body);
+      // print(response.body);
       final data = jsonDecode(response.body);
       if (response.statusCode == 200) {
         if (data['status'] == 'success') {

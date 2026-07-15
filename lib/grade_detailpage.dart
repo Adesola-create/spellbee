@@ -49,7 +49,7 @@ class _GradeDetailPageState extends State<GradeDetailPage> {
   void _initializeInAppPurchase() async {
     //  final bool available = await _inAppPurchase.isAvailable();
     final ProductDetailsResponse response =
-        await _inAppPurchase.queryProductDetails([widget.productid].toSet());
+        await _inAppPurchase.queryProductDetails({widget.productid});
 
     setState(() {
       // _isAvailable = available;
@@ -121,7 +121,7 @@ class _GradeDetailPageState extends State<GradeDetailPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => SpellGradePage(),
+            builder: (context) => const SpellGradePage(),
           ),
         );
       } else {
@@ -296,7 +296,7 @@ class _GradeDetailPageState extends State<GradeDetailPage> {
         child: ElevatedButton(
           onPressed: () async {
             final ProductDetailsResponse response = await _inAppPurchase
-                .queryProductDetails([widget.productid].toSet());
+                .queryProductDetails({widget.productid});
             if (response.productDetails.isNotEmpty) {
               final ProductDetails productDetails =
                   response.productDetails.first;

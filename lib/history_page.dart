@@ -27,7 +27,7 @@ class _HistoryPageState extends State<HistoryPage> {
       final prefs = await SharedPreferences.getInstance();
       //await prefs.remove('quizHistory');
       final historyData = prefs.getStringList('quizHistoryLog') ?? [];
-      print('Loaded quiz history: $historyData');
+      // print('Loaded quiz history: $historyData');
 
       setState(() {
         quizHistoryList = historyData
@@ -163,7 +163,7 @@ class _HistoryPageState extends State<HistoryPage> {
     final scrollController = ScrollController();
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 22, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 1),
       decoration: BoxDecoration(
         color: Colors.grey[200], // Background color
         borderRadius: BorderRadius.circular(8), // Rounded corners

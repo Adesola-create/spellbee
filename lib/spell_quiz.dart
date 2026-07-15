@@ -18,7 +18,7 @@ class QuizHistoryManager {
 
     // Retrieve existing history
     List<String> historyList = prefs.getStringList('quizHistoryLog') ?? [];
-    //print('History List: $historyList');
+    
     // Add the new history
     historyList.add(jsonEncode(history));
 
@@ -244,8 +244,10 @@ class _SpellQuizPageState extends State<SpellQuizPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Module ${widget.moduleIndex} Quiz'),
-        backgroundColor: Colors.purple,
+        title: Text('Module ${widget.moduleIndex} Quiz',
+        style: const TextStyle(
+              color: Colors.black, fontSize: 22, fontWeight: FontWeight.bold),),
+        backgroundColor: primaryColor,
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -270,7 +272,7 @@ class _SpellQuizPageState extends State<SpellQuizPage> {
               style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.purple),
+                  color: primaryColor),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -315,7 +317,7 @@ class _SpellQuizPageState extends State<SpellQuizPage> {
                       child: ListTile(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.0),
-                          side: BorderSide(
+                          side: const BorderSide(
                             color: Colors.grey, // Border color
                             width: 2.0, // Border width
                           ),

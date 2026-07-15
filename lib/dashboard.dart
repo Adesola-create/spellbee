@@ -34,7 +34,7 @@ class _DashboardPageState extends State<DashboardPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     String? gradeDataString = prefs.getString('gradeData');
-    print(gradeDataString);
+    // print(gradeDataString);
 
     if (gradeDataString != null) {
       setState(() {
@@ -305,14 +305,21 @@ class _DashboardPageState extends State<DashboardPage> {
       _buildSingleWelcomeCard(
         'Welcome!',
         'Start your journey with simple and fun activities perfect for beginners and all levels of English learners.',
-        color: primaryColor,
+        color: const Color.fromARGB(255, 0, 71, 3),
       ),
       _buildSingleWelcomeCard('Learn Words!',
-          'Explore new words and phrases daily with engaging lessons and activities.',
-          color: const Color.fromARGB(255, 0, 71, 3)),
+          'Explore new words, their pronunciation, and use in everyday sentences with engaging lessons and activities.',
+          color: primaryColor),
+      _buildSingleWelcomeCard('Spelling Bee!',
+          'Prepare for local & international Spelling Bee competition with confidence using our well curated set of contest words.',
+          color: const Color.fromARGB(255, 12, 25, 207)),    
       _buildSingleWelcomeCard('Achieve Goals!',
           'Track your progress and achieve your learning milestones with ease.',
           color: const Color.fromARGB(255, 56, 4, 141)),
+      _buildSingleWelcomeCard('Statistical Overview!',
+          'Get comprehensive statistical scores of all learning activities to help you track your progress.',
+          color: const Color.fromARGB(255, 241, 27, 98)),
+         
     ];
 
     return SizedBox(
@@ -361,7 +368,7 @@ class _DashboardPageState extends State<DashboardPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => HomePage(selectedIndex: 4)), // Navigate to ProfilePage
+              builder: (context) => const HomePage(selectedIndex: 4)), // Navigate to ProfilePage
         );
       },
       child: Container(

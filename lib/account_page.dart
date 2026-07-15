@@ -140,7 +140,7 @@ class _AccountPageState extends State<AccountPage> {
             _buildGroupedSection([
               _buildProfileSection(),
             ]),
-            const SizedBox(height: 24.0),
+            const SizedBox(height: 20),
             _buildGroupedSection([
               _buildUserInfo('Name', userName, Icons.person, onTap: () {
                 // Navigator.of(context).push(_createRoute(ProfilePage()));
@@ -163,17 +163,17 @@ class _AccountPageState extends State<AccountPage> {
               }),
               _buildListTile('Help & Support', Icons.help, onTap: () {
                 //Navigator.of(context).push(_createRoute(HelpSupportPage()));
-                Navigator.of(context).push(_createRoute(HelpAndSupportPage()));
+                Navigator.of(context).push(_createRoute(const HelpPage()));
               }),
               _buildListTile('Terms & Conditions', Icons.info, onTap: () {
                 Navigator.of(context)
-                    .push(_createRoute(const TermsAndConditionsPage()));
+                    .push(_createRoute(const TermsOfUsePage()));
               }),
               _buildListTile('Privacy Policy', Icons.info, onTap: () {
-                Navigator.of(context).push(_createRoute(const PrivacyPolicyPage()));
+                Navigator.of(context).push(_createRoute(PrivacyPolicyPage()));
               }),
               _buildListTile('Delete your Account', Icons.help, onTap: () {
-                Navigator.of(context).push(_createRoute(const AccountDeletionPage()));
+                Navigator.of(context).push(_createRoute(const DeleteAccountPage()));
               }),
               _buildListTile('About WordPro', Icons.info_outline, onTap: () {
                 Navigator.of(context).push(_createRoute(const AboutPage()));
@@ -269,7 +269,7 @@ class _AccountPageState extends State<AccountPage> {
             ),
             const SizedBox(height: 3.0),
             Text(
-              'BraveIQ ID: 000$userId',
+              'WordPro ID: 000$userId',
               style: const TextStyle(fontSize: 14.0, color: Colors.black),
             ),
             const SizedBox(height: 12.0),

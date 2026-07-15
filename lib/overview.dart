@@ -65,7 +65,6 @@ class _OverviewPageState extends State<OverviewPage> {
         y = 90;
       }
       double z = (100 - y) / 100;
-      // print('Yes $z');
       return z;
     }
 
@@ -107,8 +106,6 @@ class _OverviewPageState extends State<OverviewPage> {
       }
     }
 
-//print("Total Length: $totalLength");
-
     // Calculate average time spent per quiz
     int averageTime = totalEntries > 0 ? (totalTimeSpent ~/ totalEntries) : 0;
 
@@ -146,10 +143,6 @@ class _OverviewPageState extends State<OverviewPage> {
 // Step 5: Calculate absent days
     int consistency = allDaysInRange.length - uniqueDaysWithEntries.length;
 
-// Debugging/Logging
-//print("All days in range: $allDaysInRange");
-//print("Unique quiz days: $uniqueDaysWithEntries");
-//print("Absent days: $consistency");
     //void main() {
     double percentageConsist = calculatePercentage(consistency) / 100;
     double speedPercentage = calculateSpeedPercentage(averageTime);
@@ -207,7 +200,6 @@ class _OverviewPageState extends State<OverviewPage> {
 
   @override
   Widget build(BuildContext context) {
-   // print('yes ${statistics['speedPercentage']}');
    // double number = statistics['gradePercentage'] * 100;
    // double roundedNumber = 0.0;//double.parse(number.toStringAsFixed(1));
     return Scaffold(

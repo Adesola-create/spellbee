@@ -26,7 +26,7 @@ class _SpellGradePageState extends State<SpellGradePage> {
   Future<void> loadStoredGrades() async {
     final prefs = await SharedPreferences.getInstance();
     final storedGrades = prefs.getString('myProducts');
-    print(storedGrades);
+    // print(storedGrades);
     if (storedGrades != null) {
       setState(() {
         _grades = json.decode(storedGrades);

@@ -191,7 +191,7 @@ class _SpellWordPageState extends State<SpellWordPage> {
                             margin: const EdgeInsets.symmetric(vertical: 4.0),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8.0),
-                              side: BorderSide(
+                              side: const BorderSide(
                                 color: Colors.grey, // Border color
                                 width: 2.0, // Border width
                               ),

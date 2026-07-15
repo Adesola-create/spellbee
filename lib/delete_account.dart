@@ -1,126 +1,172 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'constants.dart';
 
-class AccountDeletionPage extends StatelessWidget {
-  const AccountDeletionPage({super.key});
+class DeleteAccountPage extends StatefulWidget {
+  const DeleteAccountPage({super.key});
 
-  void _deleteAccount(BuildContext context) {
-    // Replace this with your actual account deletion logic
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Account deleted successfully."),
-        backgroundColor: Colors.green,
-      ),
-    );
+  @override
+  _DeleteAccountPageState createState() => _DeleteAccountPageState();
+}
 
-    Navigator.pop(context); // Navigate back after deletion
+class _DeleteAccountPageState extends State<DeleteAccountPage> {
+  final TextEditingController _reasonController = TextEditingController();
+  bool _isLoading = false;
+  bool _isRequestSubmitted = false; // Track if request is submitted
+  String? _userId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
   }
 
-  void _showConfirmationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text(
-            "Confirm Account Deletion",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          content: const Text(
-            "Are you sure you want to delete your account? This action cannot be undone.",
-            style: TextStyle(fontSize: 16),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                "Cancel",
-                style: TextStyle(color: Colors.grey),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context); // Close the dialog
-                _deleteAccount(context); // Trigger account deletion
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: const Text("Delete",
-              style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userId = prefs.getString('userId');
+      _isRequestSubmitted = prefs.getBool('isRequestSubmitted') ?? false;
+    });
+  }
+
+  Future<void> _submitDeleteRequest() async {
+    final String reason = _reasonController.text.trim();
+
+    if (reason.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please provide a reason for deletion.')),
+      );
+      return;
+    }
+
+    if (_userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User ID not found.')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final response = await http.post(
+        Uri.parse('https://api.braveiq.net/v1/terminateacc'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization':
+              'Bearer YOUR_ACCESS_TOKEN', // Replace with actual token if needed
+        },
+        body: '{"userId": "$_userId", "reason": "$reason"}',
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Account termination request sent successfully.')),
         );
-      },
-    );
+
+        // Save the request status to prevent future submissions
+        final prefs = await SharedPreferences.getInstance();
+        prefs.setBool('isRequestSubmitted', true);
+
+        setState(() {
+          _isRequestSubmitted = true; // Update UI
+        });
+
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content:
+                  Text('Failed to submit request. Please try again later.')),
+        );
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('An error occurred. Please check your connection.')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _reasonController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController feedbackController = TextEditingController();
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Delete Account",
-        style: TextStyle(color: Colors.white),
+        title: const Text(
+          'Delete Account',
+          style: TextStyle(
+              color: Colors.black, fontSize: 22, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: const Color.fromARGB(255, 102, 4, 69),
+        // backgroundColor: primaryColor,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              "Account Deletion",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
+              'Reason for Deleting Account',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
-            const Text(
-              "We're sorry to see you go! If you want to delete your account, please confirm below. You can also provide feedback to help us improve.",
-              style: TextStyle(fontSize: 16, color: Colors.black87),
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              "Your Feedback (Optional)",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             TextField(
-              controller: feedbackController,
+              controller: _reasonController,
               maxLines: 4,
-              decoration: InputDecoration(
-                hintText: "Let us know why you're leaving...",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
+              decoration: const InputDecoration(
+                hintText:
+                    'Please explain why you want to delete your account...',
+                border: OutlineInputBorder(),
               ),
+              enabled:
+                  !_isRequestSubmitted, // Disable input if already submitted
             ),
-            const SizedBox(height: 24),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  if (feedbackController.text.isNotEmpty) {
-                    // Optional: send feedback to your server before deletion
-                    print("Feedback submitted: ${feedbackController.text}");
-                  }
-                  _showConfirmationDialog(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 102, 4, 69), // Red for account deletion
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+            const SizedBox(height: 20),
+            _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _isRequestSubmitted
+                          ? null
+                          : _submitDeleteRequest, // Disable if already submitted
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: const BorderSide(color: primaryColor, width: 2),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text(
+                        'Submit Request',
+                        style: TextStyle(color: primaryColor),
+                      ),
+                    ),
                   ),
-                ),
-                child: const Text(
-                  "Delete My Account",
-                  style: TextStyle(fontSize: 18, color: Colors.white),
+            if (_isRequestSubmitted)
+              const Padding(
+                padding: EdgeInsets.only(top: 10),
+                child: Text(
+                  'Your account termination request has been submitted.',
+                  style: TextStyle(
+                      color: Colors.black, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
                 ),
               ),
-            ),
           ],
         ),
       ),
